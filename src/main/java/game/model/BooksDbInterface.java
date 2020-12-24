@@ -23,8 +23,22 @@ public interface BooksDbInterface {
 
     public void disconnect() throws IOException, SQLException;
 
-    public List<Book> searchBooksByTitle(String title) throws IOException, SQLException;;
+    public List<Book> searchBooksByTitle(String title) throws IOException, SQLException;
+
+    List<Book> searchBooksByAuthor(String author) throws IOException, SQLException;
+
+    List<Book> searchBooksByISBN(String isbn) throws IOException, SQLException;
+
+    List<Book> searchBooksByRating(String rating) throws IOException, SQLException;
+
+    List<Book> searchBooksByGenre(String genre) throws IOException, SQLException;
 
     // TODO: Add abstract methods for all inserts, deletes and queries
     // mentioned in the instructions for the assignement.
 }
+
+
+
+
+
+

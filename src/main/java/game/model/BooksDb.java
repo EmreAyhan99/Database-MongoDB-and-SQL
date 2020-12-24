@@ -1,11 +1,13 @@
 package game.model;
 
 import java.io.IOException;
+import java.lang.module.FindException;
 import java.sql.Date;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.sql.*;
 
 /**
  * A mock implementation of the BooksDBInterface interface to demonstrate how to
@@ -15,18 +17,36 @@ import java.util.List;
  *
  * @author anderslm@kth.se
  */
-public class MockBooksDb implements BooksDbInterface {
+public class BooksDb implements BooksDbInterface {
 
     private final List<Book> books;
 
-    public MockBooksDb() {
+    public BooksDb() {
         books = Arrays.asList(DATA);
     }
 
     @Override
-    public boolean connect(String database) throws IOException, SQLException {
-        // mock implementation
-        return true;
+    public boolean connect(String database) throws SQLException
+    {
+        Connection conn = null;
+        try {
+            conn = DriverManager.getConnection(database);
+            var rs = conn.createStatement().executeQuery("SELECT * FROM t_book");
+
+            while (rs.next()) {   //VARje rad för databasen så skriver man ut
+                System.out.println(rs.getString("isbn"));
+            }
+
+            conn.close();
+
+        } finally {
+            if (conn!= null)
+            {
+                conn.close();
+            }
+        }
+            return true;
+
     }
 
     @Override
@@ -48,6 +68,26 @@ public class MockBooksDb implements BooksDbInterface {
             }
         }
         return result;
+    }
+
+    @Override
+    public List<Book> searchBooksByAuthor(String author) throws IOException, SQLException {
+        return null;
+    }
+
+    @Override
+    public List<Book> searchBooksByISBN(String isbn) throws IOException, SQLException {
+        return null;
+    }
+
+    @Override
+    public List<Book> searchBooksByRating(String rating) throws IOException, SQLException {
+        return null;
+    }
+
+    @Override
+    public List<Book> searchBooksByGenre(String genre) throws IOException, SQLException {
+        return null;
     }
 
     private static final Book[] DATA = {

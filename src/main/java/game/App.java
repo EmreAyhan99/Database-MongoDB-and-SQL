@@ -1,17 +1,13 @@
 package game;
 
-import game.model.MockBooksDb;
-import game.view.BooksPane;
+import game.model.BooksDb;
+import game.view.BooksView;
 import javafx.application.Application;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
-import java.sql.*;
 
-import javafx.application.Application;
-import javafx.scene.Scene;
-import javafx.stage.Stage;
+import java.io.IOException;
+import java.sql.*;
 
 
 /**
@@ -20,12 +16,13 @@ import javafx.stage.Stage;
 public class App extends Application {
 
     @Override
-    public void start(Stage primaryStage) {
+    public void start(Stage primaryStage) throws IOException, SQLException {
 
-        MockBooksDb booksDb = new MockBooksDb(); // model
+        BooksDb booksDb = new BooksDb(); // model
+
         // Don't forget to connect to the db, somewhere...
 
-        BooksPane root = new BooksPane(booksDb);
+        BooksView root = new BooksView(booksDb);
 
         Scene scene = new Scene(root, 800, 600);
 
@@ -43,6 +40,20 @@ public class App extends Application {
     }
 
     public static void main(String[] args) throws SQLException {
+
+
+        launch();
+    }
+
+    private static Connection conn;
+
+}
+
+
+
+
+    /*
+    public static void main(String[] args) throws SQLException {
         try {
             Class.forName("org.mariadb.jdbc.Driver");
 
@@ -55,7 +66,7 @@ public class App extends Application {
 
             var rs = conn.createStatement().executeQuery("SELECT * FROM t_book");
 
-            while (rs.next()){
+            while (rs.next()){   //VARje rad för databasen så skriver man ut
                 System.out.println(rs.getString("isbn"));
             }
             conn.close();
@@ -66,8 +77,4 @@ public class App extends Application {
         }
 
         launch();
-    }
-
-    private static Connection conn;
-
-}
+    } */

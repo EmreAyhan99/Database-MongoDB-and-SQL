@@ -5,7 +5,7 @@ import java.sql.Date;
 import java.util.List;
 
 import game.model.Book;
-import game.model.MockBooksDb;
+import game.model.BooksDb;
 import game.model.SearchMode;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -33,7 +33,7 @@ import javafx.scene.layout.VBox;
  *
  * @author anderslm@kth.se
  */
-public class BooksPane extends VBox {
+public class BooksView extends VBox {
 
     private TableView<Book> booksTable;
     private ObservableList<Book> booksInTable; // the data backing the table view
@@ -44,7 +44,7 @@ public class BooksPane extends VBox {
 
     private MenuBar menuBar;
 
-    public BooksPane(MockBooksDb booksDb) {
+    public BooksView(BooksDb booksDb) {
         final Controller controller = new Controller(booksDb, this);
         this.init(controller);
     }

@@ -6,6 +6,8 @@ import game.model.Book;
 import game.model.BooksDbInterface;
 import game.model.SearchMode;
 
+import java.io.IOException;
+import java.sql.SQLException;
 import java.util.List;
 
 import static javafx.scene.control.Alert.AlertType.*;
@@ -18,12 +20,19 @@ import static javafx.scene.control.Alert.AlertType.*;
  */
 public class Controller {
 
-    private final BooksPane booksView; // view
+    private final BooksView booksView; // view
     private final BooksDbInterface booksDb; // model
 
-    public Controller(BooksDbInterface booksDb, BooksPane booksView) {
+    public Controller(BooksDbInterface booksDb, BooksView booksView) {
         this.booksDb = booksDb;
         this.booksView = booksView;
+        try {
+            booksDb.connect("jdbc:mariadb://dzeknjak.com:3306/Labb1EmreLo?user=hazard&password=test123&allowPublicKeyRetrieval=true&useSSL=false");
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     protected void onSearchSelected(String searchFor, SearchMode mode) {
