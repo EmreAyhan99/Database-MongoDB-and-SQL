@@ -20,6 +20,7 @@ import java.sql.*;
 public class BooksDb implements BooksDbInterface {
 
     private final List<Book> books;
+    private Connection conn;
 
     public BooksDb() {
         books = Arrays.asList(DATA);
@@ -28,9 +29,9 @@ public class BooksDb implements BooksDbInterface {
     @Override
     public boolean connect(String database) throws SQLException
     {
-        Connection conn = null;
+        conn = null;
         try {
-            conn = DriverManager.getConnection(database);
+            conn = DriverManager.getConnection(database,"client","emre123123!");
             var rs = conn.createStatement().executeQuery("SELECT * FROM t_book");
 
             while (rs.next()) {   //VARje rad för databasen så skriver man ut
@@ -55,8 +56,8 @@ public class BooksDb implements BooksDbInterface {
     }
 
     @Override
-    public List<Book> searchBooksByTitle(String searchTitle)
-            throws IOException, SQLException  {
+    public List<Book> searchBooksByTitle(String searchTitle) throws IOException, SQLException
+    {
         // mock implementation
         // NB! Your implementation should select the books matching
         // the search string via a query with to a database.

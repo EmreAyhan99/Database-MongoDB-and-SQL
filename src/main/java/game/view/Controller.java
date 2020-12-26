@@ -23,11 +23,13 @@ public class Controller {
     private final BooksView booksView; // view
     private final BooksDbInterface booksDb; // model
 
+
     public Controller(BooksDbInterface booksDb, BooksView booksView) {
         this.booksDb = booksDb;
         this.booksView = booksView;
         try {
-            booksDb.connect("jdbc:mariadb://dzeknjak.com:3306/Labb1EmreLo?user=hazard&password=test123&allowPublicKeyRetrieval=true&useSSL=false");
+            booksDb.connect("jdbc:mysql://localhost/mydb?"+ "serverTimezone=UTC");
+
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         } catch (IOException e) {
