@@ -29,6 +29,7 @@ public class BooksDb implements BooksDbInterface {
     @Override
     public boolean connect(String database) throws SQLException
     {
+
         conn = null;
         try {
             conn = DriverManager.getConnection(database,"client","emre123123!");

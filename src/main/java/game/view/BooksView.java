@@ -141,6 +141,10 @@ public class BooksView extends VBox {
         Menu fileMenu = new Menu("File");
         MenuItem exitItem = new MenuItem("Exit");
         MenuItem connectItem = new MenuItem("Connect to Db");
+        connectItem.setOnAction(e -> {
+            e.consume();
+            System.out.println("hej");                  
+        });
         MenuItem disconnectItem = new MenuItem("Disconnect");
         fileMenu.getItems().addAll(exitItem, connectItem, disconnectItem);
 
