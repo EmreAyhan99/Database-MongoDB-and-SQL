@@ -79,7 +79,7 @@ public class BooksView extends VBox {
         // init views and event handlers
         initBooksTable();
         initSearchView(controller);
-        initMenus();
+        initMenus(controller);
 
         FlowPane bottomPane = new FlowPane();
         bottomPane.setHgap(10);
@@ -136,14 +136,15 @@ public class BooksView extends VBox {
         });
     }
 
-    private void initMenus() {
+    private void initMenus(Controller controller) {
 
         Menu fileMenu = new Menu("File");
         MenuItem exitItem = new MenuItem("Exit");
         MenuItem connectItem = new MenuItem("Connect to Db");
         connectItem.setOnAction(e -> {
             e.consume();
-            System.out.println("hej");                  
+            controller.connectToServer();
+            System.out.println("Connectet to DataBase");
         });
         MenuItem disconnectItem = new MenuItem("Disconnect");
         fileMenu.getItems().addAll(exitItem, connectItem, disconnectItem);
@@ -163,5 +164,8 @@ public class BooksView extends VBox {
         menuBar = new MenuBar();
         menuBar.getMenus().addAll(fileMenu, searchMenu, manageMenu);
     }
+
+
+
 }
 

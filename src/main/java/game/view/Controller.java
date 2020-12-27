@@ -24,17 +24,11 @@ public class Controller {
     private final BooksDbInterface booksDb; // model
 
 
-    public Controller(BooksDbInterface booksDb, BooksView booksView) {
+    public Controller(BooksDbInterface booksDb, BooksView booksView)
+    {
         this.booksDb = booksDb;
         this.booksView = booksView;
-        try {
-            booksDb.connect("jdbc:mysql://localhost/mydb?"+ "serverTimezone=UTC");
 
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
     protected void onSearchSelected(String searchFor, SearchMode mode) {
@@ -66,6 +60,19 @@ public class Controller {
         } catch (Exception e) {
             booksView.showAlertAndWait("Database error.",ERROR);
         }
+    }
+
+    public void connectToServer()
+    {
+        try {
+            booksDb.connect("jdbc:mysql://localhost/mydb?"+ "serverTimezone=UTC");
+
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
     // TODO:
