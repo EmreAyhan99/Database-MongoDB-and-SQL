@@ -75,6 +75,12 @@ public class Controller {
 
     }
 
+    public void disconnectFromServer() throws IOException, SQLException {
+        try {
+            booksDb.disconnect();
+        } finally {}
+    }
+
     // TODO:
     // Add methods for all types of user interaction (e.g. via  menus).
 }

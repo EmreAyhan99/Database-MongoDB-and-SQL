@@ -1,11 +1,15 @@
 package game.model;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+
 import java.io.IOException;
 import java.lang.module.FindException;
 import java.sql.Date;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.sql.*;
 
@@ -23,7 +27,7 @@ public class BooksDb implements BooksDbInterface {
     private Connection conn;
 
     public BooksDb() {
-        books = Arrays.asList(DATA);
+        books = Arrays.asList();
     }
 
     @Override
@@ -39,10 +43,10 @@ public class BooksDb implements BooksDbInterface {
                 System.out.println(rs.getString("isbn"));
             }
 
-            conn.close();
+
 
         } finally {
-            if (conn!= null)
+            if (conn== null)
             {
                 conn.close();
             }
@@ -52,8 +56,31 @@ public class BooksDb implements BooksDbInterface {
     }
 
     @Override
-    public void disconnect() throws IOException, SQLException {
-        // mock implementation
+    public void disconnect() throws IOException, SQLException
+    {
+        try {
+            if (conn != null) {
+                conn.close();
+                conn = null;
+            }
+        } finally {
+
+        }
+
+    }
+
+
+
+    private List<Book> getBooks(ResultSet resultSet) throws SQLException {
+        HashMap<String,Book> bookHashMap = new HashMap<>();
+        while (resultSet.next())
+        {
+            String isbn = resultSet.getString("isbn");
+
+
+
+        }
+
     }
 
     @Override
@@ -64,11 +91,44 @@ public class BooksDb implements BooksDbInterface {
         // the search string via a query with to a database.
         List<Book> result = new ArrayList<>();
         searchTitle = searchTitle.toLowerCase();
-        for (Book book : books) {
-            if (book.getTitle().toLowerCase().contains(searchTitle)) {
-                result.add(book);
+
+        /*
+        try {
+            var preparedStatement = conn.prepareStatement("SELECT * FROM t_book WHERE title='" + searchTitle + "'");
+            preparedStatement.execute();
+
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }  */
+
+        //ObservableList<Book> books = FXCollections.observableArrayList();
+        String query = "SELECT * FROM t_book WHERE title='"+searchTitle+"'";
+        try
+        {
+            var rs = conn.createStatement().executeQuery(query);
+            Book book;
+            while (rs.next())
+            {
+                book = new Book(rs.ge)
             }
+
+
         }
+
+        var rs = conn.createStatement().executeQuery("SELECT * FROM t_book WHERE title='"+searchTitle+"'");
+
+        while (rs.next())
+        {
+            Book book = null;
+            result.add(new Book(rs.getString("isbn"),rs.getString("title"),rs.getString("genre"),rs.getString("grade")));
+            //book.setIsbn(rs.getString("isbn"));
+            //book.setTitle(rs.g);
+
+
+
+            System.out.println(rs.getString("title"));
+        }
+
         return result;
     }
 
@@ -92,6 +152,7 @@ public class BooksDb implements BooksDbInterface {
         return null;
     }
 
+    /*
     private static final Book[] DATA = {
             new Book(1, "123456789", "Databases Illuminated", new Date(1990, 1, 1)),
             new Book(2, "456789012", "The buried giant", new Date(2000, 1, 1)),
@@ -99,5 +160,5 @@ public class BooksDb implements BooksDbInterface {
             new Book(2, "678901234", "The remains of the day", new Date(2000, 1, 1)),
             new Book(2, "234567890", "Alias Grace", new Date(2000, 1, 1)),
             new Book(3, "345678901", "The handmaids tale", new Date(2010, 1, 1))
-    };
+    }; */
 }

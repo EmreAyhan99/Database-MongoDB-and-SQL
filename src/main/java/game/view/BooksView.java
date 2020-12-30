@@ -1,7 +1,9 @@
 package game.view;
 
 
+import java.io.IOException;
 import java.sql.Date;
+import java.sql.SQLException;
 import java.util.List;
 
 import game.model.Book;
@@ -131,22 +133,38 @@ public class BooksView extends VBox {
             public void handle(ActionEvent event) {
                 String searchFor = searchField.getText();
                 SearchMode mode = searchModeBox.getValue();
+                System.out.println("nu searchar jag lowe");
                 controller.onSearchSelected(searchFor, mode);
             }
         });
     }
 
-    private void initMenus(Controller controller) {
+    private void initMenus(Controller controller) {    // la till
 
         Menu fileMenu = new Menu("File");
         MenuItem exitItem = new MenuItem("Exit");
+
         MenuItem connectItem = new MenuItem("Connect to Db");
         connectItem.setOnAction(e -> {
             e.consume();
             controller.connectToServer();
             System.out.println("Connectet to DataBase");
         });
+
         MenuItem disconnectItem = new MenuItem("Disconnect");
+        disconnectItem.setOnAction(e -> {
+            e.consume();
+            try {
+                controller.disconnectFromServer();
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
+            } catch (SQLException throwables) {
+                throwables.printStackTrace();
+            }
+            System.out.println("Disconnected from server");
+        });
+
+
         fileMenu.getItems().addAll(exitItem, connectItem, disconnectItem);
 
         Menu searchMenu = new Menu("Search");
