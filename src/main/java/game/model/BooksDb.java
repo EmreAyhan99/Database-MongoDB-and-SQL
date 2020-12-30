@@ -1,11 +1,8 @@
 package game.model;
 
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
+import javafx.scene.input.GestureEvent;
 
 import java.io.IOException;
-import java.lang.module.FindException;
-import java.sql.Date;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -71,7 +68,7 @@ public class BooksDb implements BooksDbInterface {
 
 
 
-    private List<Book> getBooks(ResultSet resultSet) throws SQLException {
+    private void getBooks(ResultSet resultSet) throws SQLException {
         HashMap<String,Book> bookHashMap = new HashMap<>();
         while (resultSet.next())
         {
@@ -80,6 +77,19 @@ public class BooksDb implements BooksDbInterface {
 
 
         }
+
+    }
+    public Genre getInum(String enumname)
+    {
+        if (enumname == (String.valueOf(Genre.DRAMA)))
+        {
+            return Genre.DRAMA;
+        }
+        if (enumname == (String.valueOf(Genre.HOROR)))
+        {
+            return Genre.HOROR;
+        }
+        return Genre.NOGENRE;
 
     }
 
@@ -103,18 +113,21 @@ public class BooksDb implements BooksDbInterface {
 
         //ObservableList<Book> books = FXCollections.observableArrayList();
         String query = "SELECT * FROM t_book WHERE title='"+searchTitle+"'";
-        try
-        {
+
             var rs = conn.createStatement().executeQuery(query);
             Book book;
+            String enumBook = rs.getString("genre");
+
+
             while (rs.next())
             {
-                book = new Book(rs.ge)
+                book = new Book(rs.getString(1),rs.getString(2),getInum(enumBook),rs.getInt("grade"));
+                System.out.println(book.toString());
             }
 
 
-        }
 
+        /*
         var rs = conn.createStatement().executeQuery("SELECT * FROM t_book WHERE title='"+searchTitle+"'");
 
         while (rs.next())
@@ -127,7 +140,7 @@ public class BooksDb implements BooksDbInterface {
 
 
             System.out.println(rs.getString("title"));
-        }
+        } */
 
         return result;
     }

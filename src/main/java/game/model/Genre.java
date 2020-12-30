@@ -2,5 +2,7 @@ package game.model;
 
 public enum Genre
 {
-    DRAMA;
+    DRAMA,HOROR,NOGENRE;
 }
+
+
