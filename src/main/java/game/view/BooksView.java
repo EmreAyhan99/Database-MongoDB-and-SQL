@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.sql.Date;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 
 import game.model.Book;
 import game.model.BooksDb;
@@ -167,20 +168,25 @@ public class BooksView extends VBox {
 
         fileMenu.getItems().addAll(exitItem, connectItem, disconnectItem);
 
-        Menu searchMenu = new Menu("Search");
-        MenuItem titleItem = new MenuItem("Title");
-        MenuItem isbnItem = new MenuItem("ISBN");
-        MenuItem authorItem = new MenuItem("Author");
-        searchMenu.getItems().addAll(titleItem, isbnItem, authorItem);
+
 
         Menu manageMenu = new Menu("Manage");
         MenuItem addItem = new MenuItem("Add");
+
+        addItem.setOnAction(e -> {
+            e.consume();
+            var dialog= new AddBookDialog();
+            Optional<Book> result = dialog.showAndWait();
+            //controller.addBook();
+
+        });
+
         MenuItem removeItem = new MenuItem("Remove");
         MenuItem updateItem = new MenuItem("Update");
         manageMenu.getItems().addAll(addItem, removeItem, updateItem);
 
         menuBar = new MenuBar();
-        menuBar.getMenus().addAll(fileMenu, searchMenu, manageMenu);
+        menuBar.getMenus().addAll(fileMenu,  manageMenu);
     }
 
 

@@ -81,6 +81,16 @@ public class Controller {
         } finally {}
     }
 
+    public void addBook()
+    {
+        Book book = null;
+        try {
+            booksDb.addBook(book);  //bara temp måste göra diolog för att få datan
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+    }
+
     // TODO:
     // Add methods for all types of user interaction (e.g. via  menus).
 }

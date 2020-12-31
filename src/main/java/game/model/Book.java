@@ -2,13 +2,14 @@ package game.model;
 
 import java.sql.Date;
 import java.util.ArrayList;
+import java.util.regex.Pattern;
 
 /**
  * Representation of a book.
  *
  * @author anderslm@kth.se
  */
-public class Book {
+public class Book{
 
     //private int bookId;
     private String isbn; // should check format
@@ -20,8 +21,18 @@ public class Book {
     // TODO:
     // Add authors, and corresponding methods, to your implementation
     // as well, i.e. "private ArrayList<Author> authors;"
+
+    private static final Pattern ISBN_PATTERN =
+            Pattern.compile("^\\d{9}[\\d|X]$");
+
+    public static boolean isValidIsbn(String isbn) {
+        return ISBN_PATTERN.matcher(isbn).matches();
+    }
+
     public Book( String isbn, String title,Genre genre, int rating)
     {
+        if(!isValidIsbn(isbn))
+            throw new IllegalArgumentException("not a valid isbn");
         this.isbn = isbn;
         this.title = title;
         this.genre = genre;
@@ -40,6 +51,24 @@ public class Book {
 
     public Genre getGenre() {
         return genre;
+    }
+    public String genreToString(Genre genre)
+    {
+        if (Genre.DRAMA == genre)
+        {
+            return Genre.DRAMA.name().toLowerCase();
+        }
+        if (Genre.HOROR == genre)
+        {
+            return Genre.HOROR.name().toLowerCase();
+        }
+        if (Genre.FANTASY == genre)
+        {
+            return Genre.FANTASY.name().toLowerCase();
+        }
+
+        return Genre.NOGENRE.name().toLowerCase();
+
     }
 
     public ArrayList<Author> getAuthors() {

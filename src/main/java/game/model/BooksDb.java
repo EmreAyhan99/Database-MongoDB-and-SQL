@@ -37,18 +37,15 @@ public class BooksDb implements BooksDbInterface {
             var rs = conn.createStatement().executeQuery("SELECT * FROM t_book");
 
             while (rs.next()) {   //VARje rad för databasen så skriver man ut
-                System.out.println(rs.getString("isbn"));
+                System.out.println(rs.getString("genre"));
             }
 
 
 
-        } finally {
-            if (conn== null)
-            {
-                conn.close();
-            }
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
         }
-            return true;
+        return true;
 
     }
 
@@ -68,17 +65,19 @@ public class BooksDb implements BooksDbInterface {
 
 
 
-    private void getBooks(ResultSet resultSet) throws SQLException {
-        HashMap<String,Book> bookHashMap = new HashMap<>();
-        while (resultSet.next())
-        {
-            String isbn = resultSet.getString("isbn");
-
-
-
-        }
+    @Override
+    public void addBook(Book book) throws SQLException {
+        //storeb
+        String query = "insert into t_book (isbn,title,genre,grade)" + " values (?, ?, ?, ?)";
+        PreparedStatement preparedStatement = conn.prepareStatement(query);
+        preparedStatement.setString(1,"1111");
+        preparedStatement.setString(2,"apan");
+        preparedStatement.setString(3, String.valueOf(Genre.HOROR));
+        preparedStatement.setInt(4,4);
+        preparedStatement.execute();
 
     }
+
     public Genre getInum(String enumname)
     {
         if (enumname == (String.valueOf(Genre.DRAMA)))
@@ -114,16 +113,24 @@ public class BooksDb implements BooksDbInterface {
         //ObservableList<Book> books = FXCollections.observableArrayList();
         String query = "SELECT * FROM t_book WHERE title='"+searchTitle+"'";
 
-            var rs = conn.createStatement().executeQuery(query);
-            Book book;
-            String enumBook = rs.getString("genre");
-
-
-            while (rs.next())
+            try
             {
-                book = new Book(rs.getString(1),rs.getString(2),getInum(enumBook),rs.getInt("grade"));
-                System.out.println(book.toString());
+
+                Book book;
+                    var rs = conn.createStatement().executeQuery(query);
+                    String enumBook = rs.getString("genre");
+                while (rs.next())
+                {
+                    System.out.println(rs.getString("genre"));
+                    book = new Book(rs.getString(1),rs.getString(2),getInum(enumBook),rs.getInt("grade"));
+                    System.out.println(book.toString());
+                }
+            } catch (SQLException throwables) {
+                throwables.printStackTrace();
             }
+
+
+
 
 
 
