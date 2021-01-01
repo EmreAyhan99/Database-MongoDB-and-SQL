@@ -32,7 +32,9 @@ public class AddBookDialog extends Dialog<Book> {
     private final TextField isbnField = new TextField();
     private final ComboBox<Book> genreChoice = new ComboBox(FXCollections
             .observableArrayList(Genre.values()));
-    private final TextField rating = new TextField();
+    //private final TextField rating = new TextField();
+    private final ComboBox<Book> rating = new ComboBox(FXCollections
+            .observableArrayList(1,2,3,4,5));
 
 
     public AddBookDialog() {
@@ -71,14 +73,16 @@ public class AddBookDialog extends Dialog<Book> {
         // Optional<FooBook> result = dialog.showAndWait();
         // FooBook book = result.get();
         // see DialogExample, line 31-34
-        this.setResultConverter(new Callback<ButtonType, Book>() {
+        this.setResultConverter(new Callback<ButtonType, Book>()
+        {
             @Override
-            public Book call(ButtonType b) {
+            public Book call(ButtonType b)
+            {
                 Book result = null;
                 if (b == buttonTypeOk) {
                     if (isValidData()) {
                         //int  rating = Integer.parseInt(rating.getText());
-                        result = new Book( isbnField.getText(),titleField.getText(), genreChoice.getSelectionModel().getSelectedItem().getGenre(), rating.getPrefColumnCount());
+                        result = new Book( isbnField.getText(),titleField.getText(), genreChoice.getSelectionModel().getSelectedItem().getGenre(), rating.getVisibleRowCount());
                     }
                 }
 
@@ -121,6 +125,7 @@ public class AddBookDialog extends Dialog<Book> {
         titleField.setText("");
         isbnField.setText("");
         genreChoice.setValue(null);
+
     }
 
     private final Alert errorAlert = new Alert(Alert.AlertType.ERROR);
