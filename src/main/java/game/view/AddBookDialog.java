@@ -17,6 +17,7 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.input.GestureEvent;
 import javafx.scene.layout.GridPane;
 import javafx.util.Callback;
 
@@ -37,11 +38,13 @@ public class AddBookDialog extends Dialog<Book> {
             .observableArrayList(1,2,3,4,5));
 
 
+
     public AddBookDialog() {
         buildAddBookDialog();
     }
 
-    private void buildAddBookDialog() {
+    private void buildAddBookDialog()
+    {
 
         this.setTitle("Add a new book");
         this.setResizable(false); // really?
@@ -73,22 +76,24 @@ public class AddBookDialog extends Dialog<Book> {
         // Optional<FooBook> result = dialog.showAndWait();
         // FooBook book = result.get();
         // see DialogExample, line 31-34
-        this.setResultConverter(new Callback<ButtonType, Book>()
-        {
-            @Override
-            public Book call(ButtonType b)
-            {
-                Book result = null;
-                if (b == buttonTypeOk) {
-                    if (isValidData()) {
-                        //int  rating = Integer.parseInt(rating.getText());
-                        result = new Book( isbnField.getText(),titleField.getText(), genreChoice.getSelectionModel().getSelectedItem().getGenre(), rating.getVisibleRowCount());
-                    }
-                }
 
-                clearFormData();
-                return result;
+        this.setResultConverter(b -> {
+            Book result;
+            if (b == buttonTypeOk) {
+
+                if (isValidData()) {
+                    //int  rating = Integer.parseInt(rating.getText());
+
+                    //System.out.println((genreChoice.getSelectionModel().getSelectedIndex()));
+                    result = new Book( isbnField.getText(),titleField.getText(), getGenre(genreChoice.getSelectionModel().getSelectedIndex()) , rating.getSelectionModel().getSelectedIndex()+1);  //genreChoice.getSelectionModel().getSelectedItem().getGenre()
+
+                    System.out.println(result.toString());
+                    return result;
+                }
             }
+            return null;
+
+            //clearFormData();
         });
 
         // add an event filter to keep the dialog active if validation fails
@@ -112,11 +117,11 @@ public class AddBookDialog extends Dialog<Book> {
         if (genreChoice.getValue() == null) {
             return false;
         }
-        if (!Book.isValidIsbn(isbnField.getText())) {
+        if (Book.isValidIsbn(isbnField.getText())) {   //Book.isValidIsbn(isbnField.getText())        // ändrade den här
             System.out.println(isbnField.getText());
             return false;
         }
-        // if(...) - keep on validating user input...
+                                                                // if(...) - keep on validating user input...
 
         return true;
     }
@@ -135,6 +140,23 @@ public class AddBookDialog extends Dialog<Book> {
         errorAlert.setHeaderText(null);
         errorAlert.setContentText(info);
         errorAlert.show();
+    }
+
+    public Genre getGenre(int row)
+    {
+        if(row ==0)
+        {
+            return Genre.DRAMA;
+        }
+        if(row ==1)
+        {
+            return Genre.HOROR;
+        }
+        if (row ==2)
+        {
+            return Genre.FANTASY;
+        }
+        return Genre.NOGENRE;
     }
 }
 

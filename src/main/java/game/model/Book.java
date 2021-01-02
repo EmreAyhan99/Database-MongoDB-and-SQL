@@ -31,8 +31,8 @@ public class Book{
 
     public Book( String isbn, String title,Genre genre, int rating)
     {
-        if(!isValidIsbn(isbn))
-            throw new IllegalArgumentException("not a valid isbn");
+        //if(!isValidIsbn(isbn))
+            //throw new IllegalArgumentException("not a valid isbn");
         this.isbn = isbn;
         this.title = title;
         this.genre = genre;

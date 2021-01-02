@@ -81,9 +81,9 @@ public class Controller {
         } finally {}
     }
 
-    public void addBook()
+    public void addBook(Book book)
     {
-        Book book = null;
+        //Book book = null;
         try {
             booksDb.addBook(book);  //bara temp måste göra diolog för att få datan
         } catch (SQLException throwables) {

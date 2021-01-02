@@ -1,12 +1,9 @@
 package game.model;
 
-import javafx.scene.input.GestureEvent;
-
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.sql.*;
 
@@ -77,6 +74,20 @@ public class BooksDb implements BooksDbInterface {
         preparedStatement.execute();
 
     }
+
+    @Override
+    public List<Book> getAllBooks() throws SQLException
+    {
+        String query = "Select * from t_book";
+        var rs = conn.createStatement().executeQuery(query);
+        ArrayList<Book> books = new ArrayList<>();
+        while(rs.next())
+        {
+
+        }
+    return null;
+    }
+
 
     public Genre getInum(String enumname)
     {
