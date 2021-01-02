@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.sql.*;
+import java.util.Optional;
 
 /**
  * A mock implementation of the BooksDBInterface interface to demonstrate how to
@@ -66,11 +67,14 @@ public class BooksDb implements BooksDbInterface {
     public void addBook(Book book) throws SQLException {
         //storeb
         String query = "insert into t_book (isbn,title,genre,grade)" + " values (?, ?, ?, ?)";
+        System.out.println("vaaaa"+book.toString());
+
+
         PreparedStatement preparedStatement = conn.prepareStatement(query);
-        preparedStatement.setString(1,"1111");
-        preparedStatement.setString(2,"apan");
-        preparedStatement.setString(3, String.valueOf(Genre.HOROR));
-        preparedStatement.setInt(4,4);
+        preparedStatement.setString(1,book.getIsbn());
+        preparedStatement.setString(2,book.getTitle());
+        preparedStatement.setString(3, String.valueOf(book.getGenre()));
+        preparedStatement.setInt(4,book.getRating());
         preparedStatement.execute();
 
     }

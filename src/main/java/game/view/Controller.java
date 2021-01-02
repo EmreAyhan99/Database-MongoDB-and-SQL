@@ -9,6 +9,7 @@ import game.model.SearchMode;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 
 import static javafx.scene.control.Alert.AlertType.*;
 
@@ -83,6 +84,7 @@ public class Controller {
 
     public void addBook(Book book)
     {
+
         //Book book = null;
         try {
             booksDb.addBook(book);  //bara temp måste göra diolog för att få datan

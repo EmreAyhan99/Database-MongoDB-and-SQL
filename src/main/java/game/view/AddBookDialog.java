@@ -17,9 +17,7 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.scene.input.GestureEvent;
 import javafx.scene.layout.GridPane;
-import javafx.util.Callback;
 
 /**
  * A simplified example of a form, using JavaFX Dialog and DialogPane. Type
@@ -40,7 +38,7 @@ public class AddBookDialog extends Dialog<Book> {
 
 
     public AddBookDialog() {
-        buildAddBookDialog();
+       buildAddBookDialog();
     }
 
     private void buildAddBookDialog()
@@ -109,6 +107,7 @@ public class AddBookDialog extends Dialog<Book> {
                 }
             }
         });
+        //return null;
     }
 
     // TODO for the student: check each input separately, to give better
