@@ -17,6 +17,7 @@ public class Book{
     private Genre genre;
     private ArrayList<Author> authors;
     private int rating;
+    private Date puplishedDate;
 
     // TODO:
     // Add authors, and corresponding methods, to your implementation
@@ -29,7 +30,7 @@ public class Book{
         return ISBN_PATTERN.matcher(isbn).matches();
     }
 
-    public Book( String isbn, String title,Genre genre, int rating)
+    public Book( String isbn, String title,Genre genre, int rating, Date puplishedDate)
     {
         //if(!isValidIsbn(isbn))
             //throw new IllegalArgumentException("not a valid isbn");
@@ -37,9 +38,9 @@ public class Book{
         this.title = title;
         this.genre = genre;
         this.rating = rating;
+        this.puplishedDate = puplishedDate;
 
     }
-
 
     //public int getBookId() { return bookId; }
     public String getIsbn() { return isbn; }
@@ -52,6 +53,12 @@ public class Book{
     public Genre getGenre() {
         return genre;
     }
+
+
+    public Date getPuplishedDate() {
+        return puplishedDate;
+    }
+
     public String genreToString(Genre genre)
     {
         if (Genre.DRAMA == genre)
@@ -87,6 +94,7 @@ public class Book{
                 ", genre=" + genre +
                 ", authors=" + authors +
                 ", rating=" + rating +
+                ", puplishedDate=" + puplishedDate +
                 '}';
     }
 }

@@ -9,15 +9,10 @@ import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.ButtonBar;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Dialog;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
+
+import java.sql.Date;
 
 /**
  * A simplified example of a form, using JavaFX Dialog and DialogPane. Type
@@ -34,6 +29,7 @@ public class AddBookDialog extends Dialog<Book> {
     //private final TextField rating = new TextField();
     private final ComboBox<Book> rating = new ComboBox(FXCollections
             .observableArrayList(1,2,3,4,5));
+    private final DatePicker datePicker = new DatePicker();
 
 
 
@@ -60,6 +56,8 @@ public class AddBookDialog extends Dialog<Book> {
         grid.add(genreChoice, 2, 3);
         grid.add(new Label("Rating"),1,4);
         grid.add(rating,2,4);
+        grid.add(new Label("Published"),1,5);
+        grid.add(datePicker,2,5);
 
         this.getDialogPane().setContent(grid);
 
@@ -81,9 +79,10 @@ public class AddBookDialog extends Dialog<Book> {
 
                 if (isValidData()) {
                     //int  rating = Integer.parseInt(rating.getText());
-
+                    var date = datePicker.getValue();
+                    Date date1 = Date.valueOf(date);
                     //System.out.println((genreChoice.getSelectionModel().getSelectedIndex()));
-                    result = new Book( isbnField.getText(),titleField.getText(), getGenre(genreChoice.getSelectionModel().getSelectedIndex()) , rating.getSelectionModel().getSelectedIndex()+1);  //genreChoice.getSelectionModel().getSelectedItem().getGenre()
+                    result = new Book( isbnField.getText(),titleField.getText(), getGenre(genreChoice.getSelectionModel().getSelectedIndex()) , rating.getSelectionModel().getSelectedIndex()+1, date1 );  //genreChoice.getSelectionModel().getSelectedItem().getGenre()
 
                     System.out.println(result.toString());
                     return result;

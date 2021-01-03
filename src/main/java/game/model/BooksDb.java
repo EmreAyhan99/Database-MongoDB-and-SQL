@@ -66,7 +66,7 @@ public class BooksDb implements BooksDbInterface {
     @Override
     public void addBook(Book book) throws SQLException {
         //storeb
-        String query = "insert into t_book (isbn,title,genre,grade)" + " values (?, ?, ?, ?)";
+        String query = "insert into t_book (isbn,title,genre,grade,puplisher)" + " values (?, ?, ?, ?, ?)";
         System.out.println("vaaaa"+book.toString());
 
 
@@ -75,6 +75,7 @@ public class BooksDb implements BooksDbInterface {
         preparedStatement.setString(2,book.getTitle());
         preparedStatement.setString(3, String.valueOf(book.getGenre()));
         preparedStatement.setInt(4,book.getRating());
+        preparedStatement.setDate(5,book.getPuplishedDate());
         preparedStatement.execute();
 
     }
@@ -137,7 +138,7 @@ public class BooksDb implements BooksDbInterface {
                 while (rs.next())
                 {
                     System.out.println(rs.getString("genre"));
-                    book = new Book(rs.getString(1),rs.getString(2),getInum(enumBook),rs.getInt("grade"));
+                    book = new Book(rs.getString(1),rs.getString(2),getInum(enumBook),rs.getInt("grade"),rs.getDate(5));
                     System.out.println(book.toString());
                 }
             } catch (SQLException throwables) {
