@@ -66,7 +66,7 @@ public class BooksDb implements BooksDbInterface {
     @Override
     public void addBook(Book book) throws SQLException {
         //storeb
-        String query = "insert into t_book (isbn,title,genre,grade,puplisher)" + " values (?, ?, ?, ?, ?)";
+        String query = "insert into t_book (isbn,title,genre,grade,puplished)" + " values (?, ?, ?, ?, ?)";
         System.out.println("vaaaa"+book.toString());
 
 
