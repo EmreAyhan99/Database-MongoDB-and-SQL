@@ -10,7 +10,7 @@ import java.sql.*;
 /**
  * A mock implementation of the BooksDBInterface interface to demonstrate how to
  * use it together with the user interface.
- *
+ * <p>
  * Your implementation should access a real database.
  *
  * @author anderslm@kth.se
@@ -19,24 +19,30 @@ public class BooksDb implements BooksDbInterface {
 
     private final List<Book> books;
     private Connection conn;
+    PreparedStatement insertBook;
+    PreparedStatement insertAuthor;
+    PreparedStatement bookAuthorConnect;
 
-    public BooksDb() {
+    public BooksDb() throws SQLException {
+
+
         books = Arrays.asList();
     }
 
     @Override
-    public boolean connect(String database) throws SQLException
-    {
+    public boolean connect(String database) throws SQLException {
 
         conn = null;
         try {
-            conn = DriverManager.getConnection(database,"client","emre123123!");
+            conn = DriverManager.getConnection(database, "client", "emre123123!");
             var rs = conn.createStatement().executeQuery("SELECT * FROM t_book");
+            insertBook = conn.prepareStatement("INSERT INTO t_book (isbn,title,genre,grade,puplished)" + " values (?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
+            insertAuthor = conn.prepareStatement("insert into t_author (namn)" + " values (?)", Statement.RETURN_GENERATED_KEYS);
+            bookAuthorConnect = conn.prepareStatement("INSERT into t_BookAuthor (authorID,t_book_bookID) VALUES (?,?)");
 
             while (rs.next()) {   //VARje rad för databasen så skriver man ut
                 System.out.println(rs.getString("genre"));
             }
-
 
 
         } catch (SQLException throwables) {
@@ -47,8 +53,7 @@ public class BooksDb implements BooksDbInterface {
     }
 
     @Override
-    public void disconnect() throws IOException, SQLException
-    {
+    public void disconnect() throws IOException, SQLException {
         try {
             if (conn != null) {
                 conn.close();
@@ -61,9 +66,8 @@ public class BooksDb implements BooksDbInterface {
     }
 
 
-
     @Override
-    public void addBook(Book book) throws SQLException {
+    public void addBookAndAuthor(Book book, ArrayList<Author> authors) throws SQLException {
         //storeb
         /*
         CallableStatement callableStatement = conn.prepareCall("{call authorRelationWithBook(?,?,?,?");
@@ -86,32 +90,73 @@ public class BooksDb implements BooksDbInterface {
 
         */
 
-        String query = "insert into t_book (isbn,title,genre,grade,puplished)" + " values (?, ?, ?, ?, ?)";
-        System.out.println("vaaaa"+book.toString());
+        conn.setAutoCommit(false);
+        insertBook.setString(1, book.getIsbn());
+        insertBook.setString(2, book.getTitle());
+        insertBook.setString(3, String.valueOf(book.getGenre()));
+        insertBook.setInt(4, book.getRating());
+        insertBook.setDate(5, book.getPuplishedDate());
+
+        insertBook.executeUpdate();
+
+        var bookResultSet = insertBook.getGeneratedKeys();
+
+        if (bookResultSet.next()) {
+            int bookId = bookResultSet.getInt(1);
+
+            for (var author : authors) {
+                insertAuthor.setString(1, author.getName());
+                insertAuthor.execute();
+
+                var authorResultSet = insertAuthor.getGeneratedKeys();
+
+                if (authorResultSet.next()) {
+                    int authorId = authorResultSet.getInt(1);
+                    connectBookAuthor(bookId, authorId);
+
+                } else {
+                    conn.rollback();
+                    break;
+                }
+
+            }
+        }
+        conn.commit();
+    }
 
 
-        PreparedStatement preparedStatement = conn.prepareStatement(query);
-        preparedStatement.setString(1,book.getIsbn());
-        preparedStatement.setString(2,book.getTitle());
-        preparedStatement.setString(3, String.valueOf(book.getGenre()));
-        preparedStatement.setInt(4,book.getRating());
-        preparedStatement.setDate(5,book.getPuplishedDate());
-        preparedStatement.execute();
+    public void connectBookAuthor(int bookId, int AuthorId) throws SQLException {
+
+        String query = "INSERT into t_BookAuthor (authorID,t_book_bookID) VALUES (?,?)";
+        bookAuthorConnect = conn.prepareStatement(query);
+
+        bookAuthorConnect.setInt(1, AuthorId);
+        bookAuthorConnect.setInt(2, bookId);
+
+        bookAuthorConnect.executeUpdate();
 
     }
 
+
     @Override
-    public List<Book> getAllBooks() throws SQLException
-    {
+    public void addAuthors(Author author) throws SQLException {
+        String query = "insert into t_book (namn)" + " values (?)";
+        PreparedStatement preparedStatement = conn.prepareStatement(query);
+
+
+    }
+
+
+    @Override
+    public List<Book> getAllBooks() throws SQLException {
 
         String query = "Select * from t_book";
         var rs = conn.createStatement().executeQuery(query);
         //var rs = conn.prepareStatement(query);
         List<Book> listOfBooks = new ArrayList<>();
 
-        while(rs.next())
-        {
-            Book book = new Book(rs.getInt(1),rs.getString(2),rs.getString(3),getInum(rs.getString(4)),rs.getInt(5),rs.getDate(6));
+        while (rs.next()) {
+            Book book = new Book(rs.getInt(1), rs.getString(2), rs.getString(3), getInum(rs.getString(4)), rs.getInt(5), rs.getDate(6));
             listOfBooks.add(book);
 
         }
@@ -119,18 +164,14 @@ public class BooksDb implements BooksDbInterface {
     }
 
 
-    public Genre getInum(String enumname)
-    {
-        if (enumname.equals(String.valueOf(Genre.DRAMA)))
-        {
+    public Genre getInum(String enumname) {
+        if (enumname.equals(String.valueOf(Genre.DRAMA))) {
             return Genre.DRAMA;
         }
-        if (enumname.equals(String.valueOf(Genre.HOROR)))
-        {
+        if (enumname.equals(String.valueOf(Genre.HOROR))) {
             return Genre.HOROR;
         }
-        if (enumname.equals(String.valueOf(Genre.FANTASY)))
-        {
+        if (enumname.equals(String.valueOf(Genre.FANTASY))) {
             return Genre.FANTASY;
         }
 
@@ -139,8 +180,7 @@ public class BooksDb implements BooksDbInterface {
     }
 
     @Override
-    public List<Book> searchBooksByTitle(String searchTitle) throws IOException, SQLException
-    {
+    public List<Book> searchBooksByTitle(String searchTitle) throws IOException, SQLException {
         // mock implementation
         // NB! Your implementation should select the books matching
         // the search string via a query with to a database.
@@ -157,23 +197,21 @@ public class BooksDb implements BooksDbInterface {
         }  */
 
         //ObservableList<Book> books = FXCollections.observableArrayList();
-        String query = "SELECT * FROM t_book WHERE title='"+searchTitle+"'";
+        String query = "SELECT * FROM t_book WHERE title='" + searchTitle + "'";
 
-            try
-            {
+        try {
 
-                Book book;
-                    var rs = conn.createStatement().executeQuery(query);
-                    String enumBook = rs.getString("genre");
-                while (rs.next())
-                {
-                    System.out.println(rs.getString("genre"));
-                    book = new Book(rs.getInt(1),rs.getString(2),rs.getString(3),getInum(enumBook),rs.getInt("grade"),rs.getDate(6));
-                    System.out.println(book.toString());
-                }
-            } catch (SQLException throwables) {
-                throwables.printStackTrace();
+            Book book;
+            var rs = conn.createStatement().executeQuery(query);
+            String enumBook = rs.getString("genre");
+            while (rs.next()) {
+                System.out.println(rs.getString("genre"));
+                book = new Book(rs.getInt(1), rs.getString(2), rs.getString(3), getInum(enumBook), rs.getInt("grade"), rs.getDate(6));
+                System.out.println(book.toString());
             }
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
 
 
 

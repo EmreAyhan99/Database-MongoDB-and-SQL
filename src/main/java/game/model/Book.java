@@ -117,10 +117,10 @@ public class Book{
         return Genre.NOGENRE.name().toLowerCase();
 
     }
-    /*
+
     public ArrayList<Author> getAuthors() {
         return authors;
-    } */
+    }
 
     public void setRating(int rating) {
         this.rating = rating;

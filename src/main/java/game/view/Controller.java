@@ -2,6 +2,7 @@ package game.view;
 
 
 
+import game.model.Author;
 import game.model.Book;
 import game.model.BooksDbInterface;
 import game.model.SearchMode;
@@ -11,8 +12,6 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 
 import static javafx.scene.control.Alert.AlertType.*;
 
@@ -85,15 +84,26 @@ public class Controller {
         } finally {}
     }
 
-    public void addBook(Book book)
+    public void addBook(Book book, ArrayList<Author> author)
     {
 
         //Book book = null;
         try {
-            booksDb.addBook(book);  //bara temp måste göra diolog för att få datan
+            booksDb.addBookAndAuthor(book, author);  //bara temp måste göra diolog för att få datan
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
+    }
+
+    public void addAuthor(Author author) throws IOException,SQLException
+    {
+        try {
+            booksDb.addAuthors(author);
+        }catch (SQLException throwables)
+        {
+            throwables.printStackTrace();
+        }
+
     }
 
     public void showAllbooks()

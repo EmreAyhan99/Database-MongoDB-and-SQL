@@ -20,7 +20,7 @@ public class AddAuthorDialog extends Dialog<Author>
 
     private final ArrayList<Author> authours = new ArrayList<>();
     private final TextField authorField = new TextField();
-    
+
 
     ButtonType buttonType = new ButtonType("Add");
     Button Add = new Button("Add");

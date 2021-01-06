@@ -1,7 +1,9 @@
 package game.model;
 
 import java.io.IOException;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -23,7 +25,10 @@ public interface BooksDbInterface {
 
     public void disconnect() throws IOException, SQLException;
 
-    public void addBook(Book book) throws SQLException;
+    public void addBookAndAuthor(Book book, ArrayList<Author> authors) throws SQLException;
+
+//Connect book author tog bort här ifrån
+    public void addAuthors(Author author) throws SQLException;
 
     public List<Book> getAllBooks() throws SQLException,IOException;
 

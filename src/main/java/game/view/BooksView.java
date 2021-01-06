@@ -191,7 +191,7 @@ public class BooksView extends VBox {
             var dialog= new AddBookDialog();
             Optional<Book> result = dialog.showAndWait();
             System.out.println("ewewewe"+result.toString());
-            result.ifPresent(book -> controller.addBook(result.get()));
+            result.ifPresent(book -> controller.addBook(result.get(),result.get().getAuthors()));
             //controller.addBook();
 
         });
