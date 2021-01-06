@@ -11,13 +11,13 @@ import java.util.regex.Pattern;
  */
 public class Book{
 
-    //private int bookId;
+    private int bookId;
     private String isbn; // should check format
     private String title;
     private Genre genre;
-    private ArrayList<Author> authors;
     private int rating;
     private Date puplishedDate;
+    private ArrayList<Author> authors;
 
     // TODO:
     // Add authors, and corresponding methods, to your implementation
@@ -30,10 +30,13 @@ public class Book{
         return ISBN_PATTERN.matcher(isbn).matches();
     }
 
-    public Book( String isbn, String title,Genre genre, int rating, Date puplishedDate)
+
+
+    public Book(int bookId, String isbn, String title, Genre genre, int rating, Date puplishedDate)
     {
         //if(!isValidIsbn(isbn))
             //throw new IllegalArgumentException("not a valid isbn");
+        this.bookId = bookId;
         this.isbn = isbn;
         this.title = title;
         this.genre = genre;
@@ -42,7 +45,24 @@ public class Book{
 
     }
 
-    //public int getBookId() { return bookId; }
+    public Book( String isbn, String title,Genre genre, int rating, Date puplishedDate,ArrayList<Author> authors)
+    {
+        //if(!isValidIsbn(isbn))
+        //throw new IllegalArgumentException("not a valid isbn");
+        this.bookId = bookId;
+        this.isbn = isbn;
+        this.title = title;
+        this.genre = genre;
+        this.rating = rating;
+        this.puplishedDate = puplishedDate;
+        this.authors = authors;
+
+    }
+
+    public int getBookId() {
+        return bookId;
+    }
+
     public String getIsbn() { return isbn; }
     public String getTitle() { return title; }
 
@@ -54,6 +74,26 @@ public class Book{
         return genre;
     }
 
+    public void setIsbn(String isbn) {
+        this.isbn = isbn;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void setGenre(Genre genre) {
+        this.genre = genre;
+    }
+
+    /*
+    public void setAuthors(ArrayList<Author> authors) {
+        this.authors = authors;
+    } */
+
+    public void setPuplishedDate(Date puplishedDate) {
+        this.puplishedDate = puplishedDate;
+    }
 
     public Date getPuplishedDate() {
         return puplishedDate;
@@ -77,10 +117,10 @@ public class Book{
         return Genre.NOGENRE.name().toLowerCase();
 
     }
-
+    /*
     public ArrayList<Author> getAuthors() {
         return authors;
-    }
+    } */
 
     public void setRating(int rating) {
         this.rating = rating;
@@ -89,12 +129,13 @@ public class Book{
     @Override
     public String toString() {
         return "Book{" +
-                "isbn='" + isbn + '\'' +
+                "bookId=" + bookId +
+                ", isbn='" + isbn + '\'' +
                 ", title='" + title + '\'' +
                 ", genre=" + genre +
-                ", authors=" + authors +
                 ", rating=" + rating +
                 ", puplishedDate=" + puplishedDate +
+                ", authors=" + authors +
                 '}';
     }
 }

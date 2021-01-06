@@ -3,7 +3,6 @@ package game.model;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * This interface declares methods for querying a Books database.
@@ -26,7 +25,7 @@ public interface BooksDbInterface {
 
     public void addBook(Book book) throws SQLException;
 
-    public List<Book> getAllBooks() throws SQLException;
+    public List<Book> getAllBooks() throws SQLException,IOException;
 
     public List<Book> searchBooksByTitle(String title) throws IOException, SQLException;
 

@@ -1,6 +1,7 @@
 package game.view;
 
 
+import game.model.Author;
 import game.model.Book;
 import game.model.Genre;
 import javafx.collections.FXCollections;
@@ -13,6 +14,9 @@ import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 
 import java.sql.Date;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Optional;
 
 /**
  * A simplified example of a form, using JavaFX Dialog and DialogPane. Type
@@ -30,6 +34,12 @@ public class AddBookDialog extends Dialog<Book> {
     private final ComboBox<Book> rating = new ComboBox(FXCollections
             .observableArrayList(1,2,3,4,5));
     private final DatePicker datePicker = new DatePicker();
+    private final ArrayList<Author> authours = new ArrayList<>();
+    private final TextField authorField = new TextField();
+    AddAuthorDialog addAuthorDialog = new AddAuthorDialog();
+
+
+
 
 
 
@@ -58,6 +68,10 @@ public class AddBookDialog extends Dialog<Book> {
         grid.add(rating,2,4);
         grid.add(new Label("Published"),1,5);
         grid.add(datePicker,2,5);
+        grid.add(new Label("Author"),1,6);
+        //grid.add(authorField,2,6);
+        var addAuthorButton = new Button("Add Author");
+        grid.add(addAuthorButton,2,6);
 
         this.getDialogPane().setContent(grid);
 
@@ -68,6 +82,17 @@ public class AddBookDialog extends Dialog<Book> {
                 = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
         this.getDialogPane().getButtonTypes().add(buttonTypeCancel);
 
+        addAuthorButton.setOnMouseClicked(Event ->{
+            Optional<Author> authors = addAuthorDialog.showAndWait();
+            System.out.println("fsdfsdfdsfds");
+            authors.ifPresent(author -> {
+
+                authours.add(authors.get());
+                System.out.println("jalla jalallllaa"+authours.toString());
+            });
+        });
+
+        //Add = (Button) this.getDialogPane().lookupButton(buttonType);
         // this callback returns the result from our dialog, via
         // Optional<FooBook> result = dialog.showAndWait();
         // FooBook book = result.get();
@@ -82,9 +107,9 @@ public class AddBookDialog extends Dialog<Book> {
                     var date = datePicker.getValue();
                     Date date1 = Date.valueOf(date);
                     //System.out.println((genreChoice.getSelectionModel().getSelectedIndex()));
-                    result = new Book( isbnField.getText(),titleField.getText(), getGenre(genreChoice.getSelectionModel().getSelectedIndex()) , rating.getSelectionModel().getSelectedIndex()+1, date1 );  //genreChoice.getSelectionModel().getSelectedItem().getGenre()
+                    result = new Book(isbnField.getText(),titleField.getText(), getGenre(genreChoice.getSelectionModel().getSelectedIndex()) ,rating.getSelectionModel().getSelectedIndex()+1, date1, authours );  //genreChoice.getSelectionModel().getSelectedItem().getGenre()
 
-                    System.out.println(result.toString());
+                    System.out.println("plzzzzzz"+result.toString());
                     return result;
                 }
             }
@@ -156,5 +181,6 @@ public class AddBookDialog extends Dialog<Book> {
         }
         return Genre.NOGENRE;
     }
+
 }
 

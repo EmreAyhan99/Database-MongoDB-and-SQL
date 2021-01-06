@@ -5,11 +5,14 @@ package game.view;
 import game.model.Book;
 import game.model.BooksDbInterface;
 import game.model.SearchMode;
+import javafx.application.Platform;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 import static javafx.scene.control.Alert.AlertType.*;
 
@@ -91,6 +94,70 @@ public class Controller {
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
+    }
+
+    public void showAllbooks()
+    {
+        new Thread() {
+            public void run() {
+        try {
+             // kallar på data modellen
+            ArrayList <Book> result = new ArrayList<>();
+            result.addAll(booksDb.getAllBooks());
+            Platform.runLater(new Runnable() {
+                public void run() {
+                    booksView.displayBooks(result);
+                    //GÖRA något i programmet upttadera vyn göra någit i vyn
+                }
+            });
+        } catch (IOException e) {
+            Platform.runLater(new Runnable() {
+                public void run() {
+                    booksView.showAlertAndWait(e.getMessage(), ERROR);
+                }
+            });
+
+        } catch (SQLException e) {
+            Platform.runLater(new Runnable() {
+                public void run() {
+                    booksView.showAlertAndWait(e.getMessage(), ERROR);
+                }
+            });
+
+        }
+    }
+    }.start();
+
+
+
+
+        /*
+        Thread thread = new Thread(() ->{
+
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run()
+                    {
+                        try {
+                            System.out.println("RIIIIIIIII"+booksDb.getAllBooks());
+                            booksView.displayBooks(booksDb.getAllBooks());
+                        } catch (SQLException throwables) {
+                            throwables.printStackTrace();
+                        }
+
+                    }
+                });
+
+            //this.gameTimeScore = boardModel.getTime();
+
+        });thread.start();
+        */
+        /*
+        try {
+            booksView.displayBooks(booksDb.getAllBooks());
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        } */
     }
 
     // TODO:

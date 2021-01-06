@@ -6,9 +6,10 @@ import java.sql.Date;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
-
+import game.model.*;
 import game.model.Book;
 import game.model.BooksDb;
+import game.model.Genre;
 import game.model.SearchMode;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -47,9 +48,12 @@ public class BooksView extends VBox {
 
     private MenuBar menuBar;
 
-    public BooksView(BooksDb booksDb) {
+    public BooksView(BooksDb booksDb)
+    {
         final Controller controller = new Controller(booksDb, this);
         this.init(controller);
+
+
     }
 
     /**
@@ -103,20 +107,26 @@ public class BooksView extends VBox {
         booksTable.setEditable(false); // don't allow user updates (yet)
 
         // define columns
+        TableColumn<Book, Integer> idCol = new TableColumn<>("Id");
         TableColumn<Book, String> titleCol = new TableColumn<>("Title");
         TableColumn<Book, String> isbnCol = new TableColumn<>("ISBN");
         TableColumn<Book, Date> publishedCol = new TableColumn<>("Published");
-        booksTable.getColumns().addAll(titleCol, isbnCol, publishedCol);
+        TableColumn<Book, Genre> genreCol = new TableColumn<>("Genre");
+        TableColumn<Book, Integer> ratingCol = new TableColumn<>("Rating");
+        booksTable.getColumns().addAll(idCol,titleCol, isbnCol, publishedCol,genreCol,ratingCol);
         // give title column some extra space
         titleCol.prefWidthProperty().bind(booksTable.widthProperty().multiply(0.5));
 
         // define how to fill data for each cell,
         // get values from Book properties
+        idCol.setCellValueFactory(new PropertyValueFactory<>("bookId"));
         titleCol.setCellValueFactory(new PropertyValueFactory<>("title"));
         isbnCol.setCellValueFactory(new PropertyValueFactory<>("isbn"));
-        publishedCol.setCellValueFactory(new PropertyValueFactory<>("published"));
-
+        publishedCol.setCellValueFactory(new PropertyValueFactory<>("puplishedDate"));
+        genreCol.setCellValueFactory(new PropertyValueFactory<>("genre"));
+        ratingCol.setCellValueFactory(new PropertyValueFactory<>("rating"));
         // associate the table view with the data
+
         booksTable.setItems(booksInTable);
     }
 
@@ -149,6 +159,8 @@ public class BooksView extends VBox {
         connectItem.setOnAction(e -> {
             e.consume();
             controller.connectToServer();
+
+            controller.showAllbooks();
             System.out.println("Connectet to DataBase");
         });
 
@@ -157,6 +169,7 @@ public class BooksView extends VBox {
             e.consume();
             try {
                 controller.disconnectFromServer();
+
             } catch (IOException ioException) {
                 ioException.printStackTrace();
             } catch (SQLException throwables) {

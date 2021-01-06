@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.sql.*;
-import java.util.Optional;
 
 /**
  * A mock implementation of the BooksDBInterface interface to demonstrate how to
@@ -66,6 +65,27 @@ public class BooksDb implements BooksDbInterface {
     @Override
     public void addBook(Book book) throws SQLException {
         //storeb
+        /*
+        CallableStatement callableStatement = conn.prepareCall("{call authorRelationWithBook(?,?,?,?");
+
+        callableStatement.registerOutParameter(1,Types.INTEGER);
+        callableStatement.setString(2,"isbnIn");
+        callableStatement.registerOutParameter(3,Types.VARCHAR);
+        callableStatement.registerOutParameter(4,Types.DATE);
+        callableStatement.executeUpdate();
+
+        var id = callableStatement.getInt(1);
+        var isbn = callableStatement.getString(2);
+        var name = callableStatement.getString(3);
+        var date = callableStatement.getDate(4);
+
+        System.out.println("id"+ id);
+        System.out.println("isbn"+ isbn);
+        System.out.println("name" + name);
+        System.out.println("date"+date);
+
+        */
+
         String query = "insert into t_book (isbn,title,genre,grade,puplished)" + " values (?, ?, ?, ?, ?)";
         System.out.println("vaaaa"+book.toString());
 
@@ -83,27 +103,37 @@ public class BooksDb implements BooksDbInterface {
     @Override
     public List<Book> getAllBooks() throws SQLException
     {
+
         String query = "Select * from t_book";
         var rs = conn.createStatement().executeQuery(query);
-        ArrayList<Book> books = new ArrayList<>();
+        //var rs = conn.prepareStatement(query);
+        List<Book> listOfBooks = new ArrayList<>();
+
         while(rs.next())
         {
+            Book book = new Book(rs.getInt(1),rs.getString(2),rs.getString(3),getInum(rs.getString(4)),rs.getInt(5),rs.getDate(6));
+            listOfBooks.add(book);
 
         }
-    return null;
+        return listOfBooks;
     }
 
 
     public Genre getInum(String enumname)
     {
-        if (enumname == (String.valueOf(Genre.DRAMA)))
+        if (enumname.equals(String.valueOf(Genre.DRAMA)))
         {
             return Genre.DRAMA;
         }
-        if (enumname == (String.valueOf(Genre.HOROR)))
+        if (enumname.equals(String.valueOf(Genre.HOROR)))
         {
             return Genre.HOROR;
         }
+        if (enumname.equals(String.valueOf(Genre.FANTASY)))
+        {
+            return Genre.FANTASY;
+        }
+
         return Genre.NOGENRE;
 
     }
@@ -138,7 +168,7 @@ public class BooksDb implements BooksDbInterface {
                 while (rs.next())
                 {
                     System.out.println(rs.getString("genre"));
-                    book = new Book(rs.getString(1),rs.getString(2),getInum(enumBook),rs.getInt("grade"),rs.getDate(5));
+                    book = new Book(rs.getInt(1),rs.getString(2),rs.getString(3),getInum(enumBook),rs.getInt("grade"),rs.getDate(6));
                     System.out.println(book.toString());
                 }
             } catch (SQLException throwables) {
