@@ -23,8 +23,13 @@ public class BooksDb implements BooksDbInterface {
     PreparedStatement insertAuthor;
     PreparedStatement bookAuthorConnect;
 
-    public BooksDb() throws SQLException {
+    PreparedStatement searchTitlee;
+    PreparedStatement searchIsbn;
+    PreparedStatement searchAuthor;
+    PreparedStatement searchAuthorBook;
 
+    public BooksDb() throws SQLException
+    {
 
         books = Arrays.asList();
     }
@@ -36,9 +41,22 @@ public class BooksDb implements BooksDbInterface {
         try {
             conn = DriverManager.getConnection(database, "client", "emre123123!");
             var rs = conn.createStatement().executeQuery("SELECT * FROM t_book");
-            insertBook = conn.prepareStatement("INSERT INTO t_book (isbn,title,genre,grade,puplished)" + " values (?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
-            insertAuthor = conn.prepareStatement("insert into t_author (namn)" + " values (?)", Statement.RETURN_GENERATED_KEYS);
-            bookAuthorConnect = conn.prepareStatement("INSERT into t_BookAuthor (authorID,t_book_bookID) VALUES (?,?)");
+
+            searchTitlee = conn.prepareStatement("SELECT * FROM " + "t_book" + " b WHERE b.title LIKE ?");
+            searchIsbn = conn.prepareStatement("SELECT * FROM " + "t_book" + " b WHERE b.isbn LIKE ?");
+            searchAuthor = conn.prepareStatement("SELECT * FROM " + "t_author" + " b WHERE b.namn LIKE ?");
+
+            searchAuthorBook = conn.prepareStatement("SELECT * \n" +
+                    "FROM t_book\n" +
+                    "WHERE t_book.bookID IN (\n" +
+                    "            SELECT t_BookAuthor.t_book_bookID\n" +
+                    "            FROM t_BookAuthor\n" +
+                    "            WHERE t_BookAuthor.authorId IN (\n" +
+                    "                            SELECT t_author.authorID\n" +
+                    "                            FROM t_author\n" +
+                    "                            WHERE t_author.namn LIKE ?" +
+                    "                            )\n" +
+                    "\t\t\t)");
 
             while (rs.next()) {   //VARje rad för databasen så skriver man ut
                 System.out.println(rs.getString("genre"));
@@ -90,6 +108,10 @@ public class BooksDb implements BooksDbInterface {
 
         */
 
+        insertBook = conn.prepareStatement("INSERT INTO t_book (isbn,title,genre,grade,puplished)" + " values (?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
+        insertAuthor = conn.prepareStatement("insert into t_author (namn)" + " values (?)", Statement.RETURN_GENERATED_KEYS);
+        //bookAuthorConnect = conn.prepareStatement("INSERT into t_BookAuthor (authorID,t_book_bookID) VALUES (?,?)");
+
         conn.setAutoCommit(false);
         insertBook.setString(1, book.getIsbn());
         insertBook.setString(2, book.getTitle());
@@ -97,27 +119,47 @@ public class BooksDb implements BooksDbInterface {
         insertBook.setInt(4, book.getRating());
         insertBook.setDate(5, book.getPuplishedDate());
 
-        insertBook.executeUpdate();
+        try {
+            insertBook.executeUpdate();
+        }catch (SQLException sqlException)
+        {
+            conn.rollback();
+            throw sqlException;
+        }
+
+
+
 
         var bookResultSet = insertBook.getGeneratedKeys();
 
         if (bookResultSet.next()) {
+
             int bookId = bookResultSet.getInt(1);
 
-            for (var author : authors) {
+            for (var author : authors)
+            {
                 insertAuthor.setString(1, author.getName());
-                insertAuthor.execute();
+
+                try {
+                    insertAuthor.execute();
+                }catch (SQLException sqlException)
+                {
+                    conn.rollback();
+                    throw sqlException;
+                }
+
 
                 var authorResultSet = insertAuthor.getGeneratedKeys();
 
-                if (authorResultSet.next()) {
+                if (authorResultSet.next())
+                {
                     int authorId = authorResultSet.getInt(1);
                     connectBookAuthor(bookId, authorId);
 
-                } else {
+                } /*else {
                     conn.rollback();
                     break;
-                }
+                } */
 
             }
         }
@@ -125,7 +167,8 @@ public class BooksDb implements BooksDbInterface {
     }
 
 
-    public void connectBookAuthor(int bookId, int AuthorId) throws SQLException {
+    public void connectBookAuthor(int bookId, int AuthorId) throws SQLException
+    {
 
         String query = "INSERT into t_BookAuthor (authorID,t_book_bookID) VALUES (?,?)";
         bookAuthorConnect = conn.prepareStatement(query);
@@ -180,12 +223,34 @@ public class BooksDb implements BooksDbInterface {
     }
 
     @Override
-    public List<Book> searchBooksByTitle(String searchTitle) throws IOException, SQLException {
+    public List<Book> searchBooksByTitle(String searchTitle) throws SQLException {
         // mock implementation
         // NB! Your implementation should select the books matching
         // the search string via a query with to a database.
         List<Book> result = new ArrayList<>();
         searchTitle = searchTitle.toLowerCase();
+
+        searchTitlee.setString(1, "%" + searchTitle + "%");
+        var rs = searchTitlee.executeQuery();
+        while(rs.next())
+        {
+            Book book = new Book(rs.getInt(1),rs.getString(2),rs.getString(3),getInum(rs.getString(4)),rs.getInt(5),rs.getDate(6));
+
+            result.add(book);
+
+
+        }
+        System.out.println(result.toString());
+        return result;
+        //String query = "SELECT * FROM " + "t_book" + " b WHERE b.title LIKE ?";
+        //var stmt = conn.prepareStatement(query);
+
+        //stmt.setString(2, "%" + searchTitle + "%");
+        //System.out.println("hej hej hej hej hej hej hej"+searchTitlee.toString());
+
+
+
+
 
         /*
         try {
@@ -197,8 +262,9 @@ public class BooksDb implements BooksDbInterface {
         }  */
 
         //ObservableList<Book> books = FXCollections.observableArrayList();
-        String query = "SELECT * FROM t_book WHERE title='" + searchTitle + "'";
+        //String query = "SELECT * FROM t_book WHERE title='" + searchTitle + "'";
 
+        /*
         try {
 
             Book book;
@@ -211,7 +277,7 @@ public class BooksDb implements BooksDbInterface {
             }
         } catch (SQLException throwables) {
             throwables.printStackTrace();
-        }
+        } */
 
 
 
@@ -233,17 +299,47 @@ public class BooksDb implements BooksDbInterface {
             System.out.println(rs.getString("title"));
         } */
 
-        return result;
+        //return result;
     }
 
     @Override
     public List<Book> searchBooksByAuthor(String author) throws IOException, SQLException {
-        return null;
+
+        List<Book> result = new ArrayList<>();
+        author = author.toLowerCase();
+
+        searchAuthorBook.setString(1, "%" + author + "%");
+        var rs = searchAuthorBook.executeQuery();
+        //var rs = searchAuthor.executeQuery();
+        while(rs.next())
+        {
+
+            Book book = new Book(rs.getInt(1),rs.getString(2),rs.getString(3),getInum(rs.getString(4)),rs.getInt(5),rs.getDate(6));
+            result.add(book);
+        }
+        System.out.println(result.toString());
+        return result;
+
     }
 
     @Override
-    public List<Book> searchBooksByISBN(String isbn) throws IOException, SQLException {
-        return null;
+    public List<Book> searchBooksByISBN(String isbn) throws IOException, SQLException
+    {
+        List<Book> result = new ArrayList<>();
+        isbn = isbn.toLowerCase();
+
+        searchIsbn.setString(1, "%" + isbn + "%");
+        var rs = searchIsbn.executeQuery();
+        while(rs.next())
+        {
+            Book book = new Book(rs.getInt(1),rs.getString(2),rs.getString(3),getInum(rs.getString(4)),rs.getInt(5),rs.getDate(6));
+
+            result.add(book);
+
+
+        }
+        System.out.println(result.toString());
+        return result;
     }
 
     @Override

@@ -38,15 +38,16 @@ public class Controller {
         try {
             if (searchFor != null && searchFor.length() > 1) {
                 List<Book> result = null;
+
                 switch (mode) {
                     case Title:
                         result = booksDb.searchBooksByTitle(searchFor);
                         break;
                     case ISBN:
-                        // ...
+                        result = booksDb.searchBooksByISBN(searchFor);
                         break;
                     case Author:
-                        // ...
+                        result = booksDb.searchBooksByAuthor(searchFor);
                         break;
                     default:
                 }
@@ -60,7 +61,7 @@ public class Controller {
                 booksView.showAlertAndWait(
                         "Enter a search string!", WARNING);
             }
-        } catch (Exception e) {
+        } catch (SQLException | IOException sqlException) {
             booksView.showAlertAndWait("Database error.",ERROR);
         }
     }

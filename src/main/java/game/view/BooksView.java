@@ -144,7 +144,7 @@ public class BooksView extends VBox {
             public void handle(ActionEvent event) {
                 String searchFor = searchField.getText();
                 SearchMode mode = searchModeBox.getValue();
-                System.out.println("nu searchar jag lowe");
+                System.out.println("nu searchar jag");
                 controller.onSearchSelected(searchFor, mode);
             }
         });

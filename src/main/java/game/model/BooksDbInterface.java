@@ -32,7 +32,7 @@ public interface BooksDbInterface {
 
     public List<Book> getAllBooks() throws SQLException,IOException;
 
-    public List<Book> searchBooksByTitle(String title) throws IOException, SQLException;
+    public List<Book> searchBooksByTitle(String title) throws SQLException;
 
     List<Book> searchBooksByAuthor(String author) throws IOException, SQLException;
 
