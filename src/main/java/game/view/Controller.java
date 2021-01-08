@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 import static javafx.scene.control.Alert.AlertType.*;
 
@@ -141,7 +142,6 @@ public class Controller {
 
 
 
-
         /*
         Thread thread = new Thread(() ->{
 
@@ -169,6 +169,33 @@ public class Controller {
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         } */
+    }
+
+
+    public void onClickedDelete(Book clickedOn,Consumer <Book> info)
+    {
+        Thread thread = new Thread(() ->{
+
+            Platform.runLater(new Runnable() {
+                @Override
+                public void run()
+                {
+                    try {
+                      booksDb.deleteClickedBook(clickedOn);  // TODO clicked on är null forstätter imorgon notis
+
+                    } catch (SQLException throwables) {
+                        throwables.printStackTrace();
+                    }
+
+                }
+            });
+
+            //this.gameTimeScore = boardModel.getTime();
+
+        });thread.start();
+
+
+
     }
 
     // TODO:

@@ -16,15 +16,7 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuBar;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
@@ -38,13 +30,14 @@ import javafx.scene.layout.VBox;
  * @author anderslm@kth.se
  */
 public class BooksView extends VBox {
-
+    //listview
     private TableView<Book> booksTable;
     private ObservableList<Book> booksInTable; // the data backing the table view
 
     private ComboBox<SearchMode> searchModeBox;
     private TextField searchField;
     private Button searchButton;
+    private Book bookClickedOn;
 
     private MenuBar menuBar;
 
@@ -128,6 +121,9 @@ public class BooksView extends VBox {
         // associate the table view with the data
 
         booksTable.setItems(booksInTable);
+        booksTable.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            this.bookClickedOn = newValue;
+        });
     }
 
     private void initSearchView(Controller controller) {
@@ -194,9 +190,20 @@ public class BooksView extends VBox {
             result.ifPresent(book -> controller.addBook(result.get(),result.get().getAuthors()));
             //controller.addBook();
 
+
         });
 
         MenuItem removeItem = new MenuItem("Remove");
+        removeItem.setOnAction(e -> {
+            if (bookClickedOn == null)
+            {
+                showAlertAndWait("you have not selected a book",Alert.AlertType.ERROR);
+            }
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION,"Do you want to delete selected Book?");
+            Optional<ButtonType> buttonType = alert.showAndWait();
+            controller.onClickedDelete(bookClickedOn, book -> booksInTable.remove(bookClickedOn));
+
+        });
         MenuItem updateItem = new MenuItem("Update");
         manageMenu.getItems().addAll(addItem, removeItem, updateItem);
 

@@ -42,6 +42,8 @@ public interface BooksDbInterface {
 
     List<Book> searchBooksByGenre(String genre) throws IOException, SQLException;
 
+    public void deleteClickedBook(Book bookSelected) throws SQLException;
+
     // TODO: Add abstract methods for all inserts, deletes and queries
     // mentioned in the instructions for the assignement.
 }

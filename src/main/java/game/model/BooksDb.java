@@ -28,6 +28,8 @@ public class BooksDb implements BooksDbInterface {
     PreparedStatement searchAuthor;
     PreparedStatement searchAuthorBook;
 
+    PreparedStatement deleteBook;
+
     public BooksDb() throws SQLException
     {
 
@@ -57,6 +59,8 @@ public class BooksDb implements BooksDbInterface {
                     "                            WHERE t_author.namn LIKE ?" +
                     "                            )\n" +
                     "\t\t\t)");
+
+            //deleteBook = conn.prepareStatement("DELETE * FROM " + "t_book" + " b WHERE b.isbn LIKE ?");
 
             while (rs.next()) {   //VARje rad för databasen så skriver man ut
                 System.out.println(rs.getString("genre"));
@@ -342,6 +346,8 @@ public class BooksDb implements BooksDbInterface {
         return result;
     }
 
+
+
     @Override
     public List<Book> searchBooksByRating(String rating) throws IOException, SQLException {
         return null;
@@ -350,6 +356,16 @@ public class BooksDb implements BooksDbInterface {
     @Override
     public List<Book> searchBooksByGenre(String genre) throws IOException, SQLException {
         return null;
+    }
+
+    @Override
+    public void deleteClickedBook(Book bookSelected) throws SQLException {
+        if (bookSelected==null)
+        {
+            return;
+        }
+        deleteBook = conn.prepareStatement("DELETE FROM `t_book` WHERE isbn = '"+bookSelected.getIsbn()+"'");
+        deleteBook.execute();
     }
 
     /*
