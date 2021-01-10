@@ -29,9 +29,9 @@ public class Author
 
     @Override
     public String toString() {
-        return "Author{" +
+        return "" +
                 "authorID=" + authorID +
-                ", name='" + name + '\'' +
-                '}';
+                ", name='" + name + '\''
+                ;
     }
 }

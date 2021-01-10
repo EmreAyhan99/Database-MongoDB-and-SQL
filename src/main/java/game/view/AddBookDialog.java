@@ -13,9 +13,12 @@ import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 
+import java.io.IOException;
 import java.sql.Date;
 import java.sql.SQLException;
+import java.text.BreakIterator;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -35,19 +38,22 @@ public class AddBookDialog extends Dialog<Book> {
             .observableArrayList(1,2,3,4,5));
     private final DatePicker datePicker = new DatePicker();
     private final ArrayList<Author> authours = new ArrayList<>();
+    private  ArrayList<Author> clickedAuthors = new ArrayList<>();
     private final TextField authorField = new TextField();
     AddAuthorDialog addAuthorDialog = new AddAuthorDialog();
 
+    private ListView <Author> authorListView = new ListView<>();
 
 
 
 
 
-    public AddBookDialog() {
-       buildAddBookDialog();
+
+    public AddBookDialog(Controller controller) {
+       buildAddBookDialog(controller);
     }
 
-    private void buildAddBookDialog()
+    private void buildAddBookDialog(Controller controller)
     {
 
         this.setTitle("Add a new book");
@@ -70,8 +76,34 @@ public class AddBookDialog extends Dialog<Book> {
         grid.add(datePicker,2,5);
         grid.add(new Label("Author"),1,6);
         //grid.add(authorField,2,6);
-        var addAuthorButton = new Button("Add Author");
+        var addAuthorButton = new Button("Add new Author");
         grid.add(addAuthorButton,2,6);
+
+        var newAuthorButton = new Button("Add author");
+        authorListView.setMaxHeight(120);
+        grid.add(authorListView,2,7);
+        grid.add(newAuthorButton,2,8);
+        /////////
+
+        //authorListView.getSelectionModel().selectedItemProperty().addListener();
+        newAuthorButton.setOnAction(e -> {
+            var clickedAuthor = authorListView.getSelectionModel().getSelectedItem();
+            if (clickedAuthor != null && !clickedAuthors.contains(clickedAuthor))
+            {
+                clickedAuthors.add(clickedAuthor);
+                System.out.println("clickade författare"+ clickedAuthors.toString());
+            }
+            //clickedAuthors.add(clickedAuthor);
+            //controller.showAllAuthors();
+            //dialog.loadAuthors();
+            //Optional<Book> result = addBookDialog.showAndWait();
+            //System.out.println("ewewewe"+result.toString());
+            //result.ifPresent(book -> controller.addBook(result.get(),result.get().getAuthors()));
+            //controller.addBook();
+
+
+        });
+
 
         this.getDialogPane().setContent(grid);
 
@@ -83,12 +115,18 @@ public class AddBookDialog extends Dialog<Book> {
         this.getDialogPane().getButtonTypes().add(buttonTypeCancel);
 
         addAuthorButton.setOnMouseClicked(Event ->{
-            Optional<Author> authors = addAuthorDialog.showAndWait();
-            System.out.println("fsdfsdfdsfds");
-            authors.ifPresent(author -> {
+            Optional<Author> author = addAuthorDialog.showAndWait();
 
-                authours.add(authors.get());
-                System.out.println("jalla jalallllaa"+authours.toString());
+
+            author.ifPresent(a -> {
+
+                try {
+                    controller.addAuthor(a);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (SQLException sqlException) {
+                    sqlException.printStackTrace();
+                }
             });
         });
 
@@ -99,7 +137,9 @@ public class AddBookDialog extends Dialog<Book> {
         // see DialogExample, line 31-34
 
         this.setResultConverter(b -> {
-            Book result;
+            //Book result;
+
+
             if (b == buttonTypeOk) {
 
                 if (isValidData()) {
@@ -107,10 +147,15 @@ public class AddBookDialog extends Dialog<Book> {
                     var date = datePicker.getValue();
                     Date date1 = Date.valueOf(date);
                     //System.out.println((genreChoice.getSelectionModel().getSelectedIndex()));
-                    result = new Book(isbnField.getText(),titleField.getText(), getGenre(genreChoice.getSelectionModel().getSelectedIndex()) ,rating.getSelectionModel().getSelectedIndex()+1, date1, authours );  //genreChoice.getSelectionModel().getSelectedItem().getGenre()
 
-                    System.out.println("plzzzzzz"+result.toString());
-                    return result;
+                     Book book= new Book(isbnField.getText(),titleField.getText(), getGenre(genreChoice.getSelectionModel().getSelectedIndex()) ,rating.getSelectionModel().getSelectedIndex()+1, date1, clickedAuthors);
+
+
+                    clearFormData();
+                    System.out.println("innan"+clickedAuthors.toString());
+                    //clickedAuthors.clear(); //////////
+                    System.out.println("efter"+clickedAuthors.toString());
+                    return book;
                 }
             }
             return null;
@@ -153,6 +198,9 @@ public class AddBookDialog extends Dialog<Book> {
         titleField.setText("");
         isbnField.setText("");
         genreChoice.setValue(null);
+        rating.setValue(null);
+        datePicker.setValue(null);
+
 
     }
 
@@ -182,5 +230,14 @@ public class AddBookDialog extends Dialog<Book> {
         return Genre.NOGENRE;
     }
 
+    public ArrayList<Author> getAuthours() {
+        return authours;
+    }
+
+    public void loadAuthors(ArrayList<Author> authors)
+    {
+        authorListView.getItems().setAll(authors);
+
+    }
 }
 

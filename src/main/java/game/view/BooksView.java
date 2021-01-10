@@ -4,6 +4,7 @@ package game.view;
 import java.io.IOException;
 import java.sql.Date;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import game.model.*;
@@ -33,18 +34,22 @@ public class BooksView extends VBox {
     //listview
     private TableView<Book> booksTable;
     private ObservableList<Book> booksInTable; // the data backing the table view
+    private ObservableList<Author> authorsInTable;
 
     private ComboBox<SearchMode> searchModeBox;
     private TextField searchField;
     private Button searchButton;
     private Book bookClickedOn;
+    private Controller controller;
+    AddBookDialog addBookDialog;
 
     private MenuBar menuBar;
 
     public BooksView(BooksDb booksDb)
     {
-        final Controller controller = new Controller(booksDb, this);
+        this.controller = new Controller(booksDb, this);
         this.init(controller);
+        addBookDialog = new AddBookDialog(controller);
 
 
     }
@@ -58,6 +63,13 @@ public class BooksView extends VBox {
     public void displayBooks(List<Book> books) {
         booksInTable.clear();
         booksInTable.addAll(books);
+    }
+
+    public void displayAuthors(ArrayList<Author> authors)
+    {
+        addBookDialog.loadAuthors(authors);
+
+
     }
 
     /**
@@ -184,11 +196,17 @@ public class BooksView extends VBox {
 
         addItem.setOnAction(e -> {
             e.consume();
-            var dialog= new AddBookDialog();
-            Optional<Book> result = dialog.showAndWait();
-            System.out.println("ewewewe"+result.toString());
+            //var dialog= new AddBookDialog();
+
+            controller.showAllAuthors();
+            //dialog.loadAuthors();
+
+            Optional<Book> result = addBookDialog.showAndWait();
+            //System.out.println("ggggggggggggggg"+result.get().toString());
             result.ifPresent(book -> controller.addBook(result.get(),result.get().getAuthors()));
             //controller.addBook();
+
+
 
 
         });
@@ -202,6 +220,7 @@ public class BooksView extends VBox {
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION,"Do you want to delete selected Book?");
             Optional<ButtonType> buttonType = alert.showAndWait();
             controller.onClickedDelete(bookClickedOn, book -> booksInTable.remove(bookClickedOn));
+
 
         });
         MenuItem updateItem = new MenuItem("Update");

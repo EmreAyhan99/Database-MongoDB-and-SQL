@@ -69,30 +69,33 @@ public class Controller {
 
     public void connectToServer()
     {
+
         try {
             booksDb.connect("jdbc:mysql://localhost/mydb?"+ "serverTimezone=UTC");
 
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
+        } catch (SQLException sqlException) {
+            sqlException.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
 
+
     }
 
     public void disconnectFromServer() throws IOException, SQLException {
+
         try {
             booksDb.disconnect();
         } finally {}
     }
 
-    public void addBook(Book book, ArrayList<Author> author)
+    public void addBook(Book book, ArrayList<Author> authors)
     {
 
         //Book book = null;
         try {
-            booksDb.addBookAndAuthor(book, author);  //bara temp måste göra diolog för att få datan
-        } catch (SQLException throwables) {
+            booksDb.addBookAndAuthor(book, authors);  //bara temp måste göra diolog för att få datan
+        } catch (SQLException | IOException throwables) {
             throwables.printStackTrace();
         }
     }
@@ -100,6 +103,8 @@ public class Controller {
     public void addAuthor(Author author) throws IOException,SQLException
     {
         try {
+            ArrayList<Author> a = new ArrayList<>();
+            a.add(author);
             booksDb.addAuthors(author);
         }catch (SQLException throwables)
         {
@@ -142,6 +147,8 @@ public class Controller {
 
 
 
+
+
         /*
         Thread thread = new Thread(() ->{
 
@@ -169,6 +176,33 @@ public class Controller {
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         } */
+    }
+
+    public void showAllAuthors()
+    {
+        new Thread() {
+            public void run() {
+                try {
+                    // kallar på data modellen
+                    ArrayList <Author> result = new ArrayList<>();
+                    result.addAll(booksDb.getAllAuthors());
+                    Platform.runLater(new Runnable() {
+                        public void run() {
+                            booksView.displayAuthors(result);
+                            //GÖRA något i programmet upttadera vyn göra någit i vyn
+                        }
+                    });
+                } catch (SQLException e) {
+                    Platform.runLater(new Runnable() {
+                        public void run() {
+                            booksView.showAlertAndWait(e.getMessage(), ERROR);
+                        }
+                    });
+
+                }
+            }
+        }.start();
+
     }
 
 

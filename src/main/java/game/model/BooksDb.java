@@ -28,6 +28,8 @@ public class BooksDb implements BooksDbInterface {
     PreparedStatement searchAuthor;
     PreparedStatement searchAuthorBook;
 
+    PreparedStatement getAllAuthors;
+
     PreparedStatement deleteBook;
 
     public BooksDb() throws SQLException
@@ -61,6 +63,8 @@ public class BooksDb implements BooksDbInterface {
                     "\t\t\t)");
 
             //deleteBook = conn.prepareStatement("DELETE * FROM " + "t_book" + " b WHERE b.isbn LIKE ?");
+
+            getAllAuthors = conn.prepareStatement("SELECT * FROM t_author");
 
             while (rs.next()) {   //VARje rad för databasen så skriver man ut
                 System.out.println(rs.getString("genre"));
@@ -114,7 +118,7 @@ public class BooksDb implements BooksDbInterface {
 
         insertBook = conn.prepareStatement("INSERT INTO t_book (isbn,title,genre,grade,puplished)" + " values (?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
         insertAuthor = conn.prepareStatement("insert into t_author (namn)" + " values (?)", Statement.RETURN_GENERATED_KEYS);
-        //bookAuthorConnect = conn.prepareStatement("INSERT into t_BookAuthor (authorID,t_book_bookID) VALUES (?,?)");
+        //bookAuthorConnect = conn.prepareStatement("INSERT into t_BookAuthor (authorID,t_book_bookID) VALUES (?,?)");   //////
 
         conn.setAutoCommit(false);
         insertBook.setString(1, book.getIsbn());
@@ -142,8 +146,10 @@ public class BooksDb implements BooksDbInterface {
 
             for (var author : authors)
             {
-                insertAuthor.setString(1, author.getName());
-
+                int authorId= author.getAuthorID();
+                connectBookAuthor(bookId, authorId);
+                //insertAuthor.setString(1, author.getName());
+                /*
                 try {
                     insertAuthor.execute();
                 }catch (SQLException sqlException)
@@ -160,13 +166,14 @@ public class BooksDb implements BooksDbInterface {
                     int authorId = authorResultSet.getInt(1);
                     connectBookAuthor(bookId, authorId);
 
-                } /*else {
+                } else {
                     conn.rollback();
                     break;
                 } */
 
             }
         }
+        authors.clear();
         conn.commit();
     }
 
@@ -184,13 +191,29 @@ public class BooksDb implements BooksDbInterface {
 
     }
 
+    @Override
+    public List<Author> getAllAuthors() throws SQLException {
+        String query = "SELECT * FROM t_author";
+        ArrayList<Author> authors = new ArrayList<>();
+
+        var rs = getAllAuthors.executeQuery();
+
+        while (rs.next())
+        {
+            Author author = new Author(rs.getInt(1),rs.getString(2));
+            authors.add(author);
+        }
+        return authors;
+
+    }
+
 
     @Override
     public void addAuthors(Author author) throws SQLException {
-        String query = "insert into t_book (namn)" + " values (?)";
+        String query = "insert into t_author (namn)" + " values (?)";
         PreparedStatement preparedStatement = conn.prepareStatement(query);
-
-
+        preparedStatement.setString(1, author.getName());
+        preparedStatement.executeUpdate();
     }
 
 
@@ -198,7 +221,9 @@ public class BooksDb implements BooksDbInterface {
     public List<Book> getAllBooks() throws SQLException {
 
         String query = "Select * from t_book";
+        System.out.println(query);
         var rs = conn.createStatement().executeQuery(query);
+
         //var rs = conn.prepareStatement(query);
         List<Book> listOfBooks = new ArrayList<>();
 
@@ -207,6 +232,7 @@ public class BooksDb implements BooksDbInterface {
             listOfBooks.add(book);
 
         }
+
         return listOfBooks;
     }
 

@@ -25,14 +25,16 @@ public interface BooksDbInterface {
 
     public void disconnect() throws IOException, SQLException;
 
-    public void addBookAndAuthor(Book book, ArrayList<Author> authors) throws SQLException;
+    public void addBookAndAuthor(Book book, ArrayList<Author> authors) throws SQLException,IOException;
 
 //Connect book author tog bort här ifrån
-    public void addAuthors(Author author) throws SQLException;
+    public void addAuthors(Author author) throws SQLException,IOException;
 
     public List<Book> getAllBooks() throws SQLException,IOException;
 
-    public List<Book> searchBooksByTitle(String title) throws SQLException;
+    public List <Author> getAllAuthors() throws SQLException;
+
+    public List<Book> searchBooksByTitle(String title) throws SQLException,IOException;
 
     List<Book> searchBooksByAuthor(String author) throws IOException, SQLException;
 
