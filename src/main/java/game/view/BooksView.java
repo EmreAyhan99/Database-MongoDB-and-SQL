@@ -31,6 +31,7 @@ import javafx.scene.layout.VBox;
  * @author anderslm@kth.se
  */
 public class BooksView extends VBox {
+    private final BooksDb db;
     //listview
     private TableView<Book> booksTable;
     private ObservableList<Book> booksInTable; // the data backing the table view
@@ -47,6 +48,7 @@ public class BooksView extends VBox {
 
     public BooksView(BooksDb booksDb)
     {
+        this.db = booksDb;
         this.controller = new Controller(booksDb, this);
         this.init(controller);
         addBookDialog = new AddBookDialog(controller);
@@ -161,14 +163,12 @@ public class BooksView extends VBox {
     private void initMenus(Controller controller) {    // la till
 
         Menu fileMenu = new Menu("File");
-        MenuItem exitItem = new MenuItem("Exit");
+
 
         MenuItem connectItem = new MenuItem("Connect to Db");
         connectItem.setOnAction(e -> {
             e.consume();
             controller.connectToServer();
-
-            controller.showAllbooks();
             System.out.println("Connectet to DataBase");
         });
 
@@ -187,7 +187,7 @@ public class BooksView extends VBox {
         });
 
 
-        fileMenu.getItems().addAll(exitItem, connectItem, disconnectItem);
+        fileMenu.getItems().addAll( connectItem, disconnectItem);
 
 
 
@@ -195,7 +195,12 @@ public class BooksView extends VBox {
         MenuItem addItem = new MenuItem("Add");
 
         addItem.setOnAction(e -> {
-            e.consume();
+            if(!db.connected())
+            {
+                showAlertAndWait("Not connected", Alert.AlertType.ERROR);
+                return;
+            }
+
             //var dialog= new AddBookDialog();
 
             controller.showAllAuthors();
@@ -203,12 +208,9 @@ public class BooksView extends VBox {
 
             Optional<Book> result = addBookDialog.showAndWait();
             //System.out.println("ggggggggggggggg"+result.get().toString());
-            result.ifPresent(book -> controller.addBook(result.get(),result.get().getAuthors()));
-            //controller.addBook();
-
-
-
-
+            result.ifPresent(book -> {
+                controller.addBook(book);
+            });
         });
 
         MenuItem removeItem = new MenuItem("Remove");
@@ -216,6 +218,7 @@ public class BooksView extends VBox {
             if (bookClickedOn == null)
             {
                 showAlertAndWait("you have not selected a book",Alert.AlertType.ERROR);
+                return;
             }
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION,"Do you want to delete selected Book?");
             Optional<ButtonType> buttonType = alert.showAndWait();
@@ -223,8 +226,8 @@ public class BooksView extends VBox {
 
 
         });
-        MenuItem updateItem = new MenuItem("Update");
-        manageMenu.getItems().addAll(addItem, removeItem, updateItem);
+
+        manageMenu.getItems().addAll(addItem, removeItem);
 
         menuBar = new MenuBar();
         menuBar.getMenus().addAll(fileMenu,  manageMenu);

@@ -1,5 +1,8 @@
 package game.model;
 
+import javafx.application.Platform;
+import javafx.scene.control.Alert;
+
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -13,7 +16,7 @@ import java.sql.*;
  * <p>
  * Your implementation should access a real database.
  *
- * @author anderslm@kth.se
+ * @author anderslm@kth.se, Emre Ayhan
  */
 public class BooksDb implements BooksDbInterface {
 
@@ -31,13 +34,20 @@ public class BooksDb implements BooksDbInterface {
     PreparedStatement getAllAuthors;
 
     PreparedStatement deleteBook;
+    private boolean connected;
 
+    /**
+     * Default constructor for BooksDb
+     */
     public BooksDb() throws SQLException
     {
-
+        connected = false;
         books = Arrays.asList();
     }
 
+    /**
+     * Connects to database
+     */
     @Override
     public boolean connect(String database) throws SQLException {
 
@@ -74,10 +84,14 @@ public class BooksDb implements BooksDbInterface {
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
-        return true;
 
+        connected = true;
+        return true;
     }
 
+    /**
+     * Disconnects from db
+     */
     @Override
     public void disconnect() throws IOException, SQLException {
         try {
@@ -92,8 +106,11 @@ public class BooksDb implements BooksDbInterface {
     }
 
 
+    /**
+     * Adds books and it's authors
+     */
     @Override
-    public void addBookAndAuthor(Book book, ArrayList<Author> authors) throws SQLException {
+    public void addBookAndAuthor(Book book) throws SQLException {
         //storeb
         /*
         CallableStatement callableStatement = conn.prepareCall("{call authorRelationWithBook(?,?,?,?");
@@ -129,14 +146,12 @@ public class BooksDb implements BooksDbInterface {
 
         try {
             insertBook.executeUpdate();
-        }catch (SQLException sqlException)
+        }
+        catch (SQLException sqlException)
         {
             conn.rollback();
             throw sqlException;
         }
-
-
-
 
         var bookResultSet = insertBook.getGeneratedKeys();
 
@@ -144,9 +159,9 @@ public class BooksDb implements BooksDbInterface {
 
             int bookId = bookResultSet.getInt(1);
 
-            for (var author : authors)
+            for (var author : book.getAuthors())
             {
-                int authorId= author.getAuthorID();
+                int authorId = author.getAuthorID();
                 connectBookAuthor(bookId, authorId);
                 //insertAuthor.setString(1, author.getName());
                 /*
@@ -173,11 +188,14 @@ public class BooksDb implements BooksDbInterface {
 
             }
         }
-        authors.clear();
+
         conn.commit();
     }
 
 
+    /**
+     * Connects the book with an author
+     */
     public void connectBookAuthor(int bookId, int AuthorId) throws SQLException
     {
 
@@ -191,6 +209,9 @@ public class BooksDb implements BooksDbInterface {
 
     }
 
+    /**
+     * Gets all authors from db
+     */
     @Override
     public List<Author> getAllAuthors() throws SQLException {
         String query = "SELECT * FROM t_author";
@@ -204,10 +225,11 @@ public class BooksDb implements BooksDbInterface {
             authors.add(author);
         }
         return authors;
-
     }
 
-
+    /**
+     * Adds author to database
+     */
     @Override
     public void addAuthors(Author author) throws SQLException {
         String query = "insert into t_author (namn)" + " values (?)";
@@ -217,6 +239,9 @@ public class BooksDb implements BooksDbInterface {
     }
 
 
+    /**
+     * Gets all books from db
+     */
     @Override
     public List<Book> getAllBooks() throws SQLException {
 
@@ -237,6 +262,9 @@ public class BooksDb implements BooksDbInterface {
     }
 
 
+    /**
+     * returns a enum
+     */
     public Genre getInum(String enumname) {
         if (enumname.equals(String.valueOf(Genre.DRAMA))) {
             return Genre.DRAMA;
@@ -252,11 +280,11 @@ public class BooksDb implements BooksDbInterface {
 
     }
 
+    /**
+     * Serach books by title
+     */
     @Override
     public List<Book> searchBooksByTitle(String searchTitle) throws SQLException {
-        // mock implementation
-        // NB! Your implementation should select the books matching
-        // the search string via a query with to a database.
         List<Book> result = new ArrayList<>();
         searchTitle = searchTitle.toLowerCase();
 
@@ -267,71 +295,14 @@ public class BooksDb implements BooksDbInterface {
             Book book = new Book(rs.getInt(1),rs.getString(2),rs.getString(3),getInum(rs.getString(4)),rs.getInt(5),rs.getDate(6));
 
             result.add(book);
-
-
         }
         System.out.println(result.toString());
         return result;
-        //String query = "SELECT * FROM " + "t_book" + " b WHERE b.title LIKE ?";
-        //var stmt = conn.prepareStatement(query);
-
-        //stmt.setString(2, "%" + searchTitle + "%");
-        //System.out.println("hej hej hej hej hej hej hej"+searchTitlee.toString());
-
-
-
-
-
-        /*
-        try {
-            var preparedStatement = conn.prepareStatement("SELECT * FROM t_book WHERE title='" + searchTitle + "'");
-            preparedStatement.execute();
-
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
-        }  */
-
-        //ObservableList<Book> books = FXCollections.observableArrayList();
-        //String query = "SELECT * FROM t_book WHERE title='" + searchTitle + "'";
-
-        /*
-        try {
-
-            Book book;
-            var rs = conn.createStatement().executeQuery(query);
-            String enumBook = rs.getString("genre");
-            while (rs.next()) {
-                System.out.println(rs.getString("genre"));
-                book = new Book(rs.getInt(1), rs.getString(2), rs.getString(3), getInum(enumBook), rs.getInt("grade"), rs.getDate(6));
-                System.out.println(book.toString());
-            }
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
-        } */
-
-
-
-
-
-
-        /*
-        var rs = conn.createStatement().executeQuery("SELECT * FROM t_book WHERE title='"+searchTitle+"'");
-
-        while (rs.next())
-        {
-            Book book = null;
-            result.add(new Book(rs.getString("isbn"),rs.getString("title"),rs.getString("genre"),rs.getString("grade")));
-            //book.setIsbn(rs.getString("isbn"));
-            //book.setTitle(rs.g);
-
-
-
-            System.out.println(rs.getString("title"));
-        } */
-
-        //return result;
     }
 
+    /**
+     * Search books by author
+     */
     @Override
     public List<Book> searchBooksByAuthor(String author) throws IOException, SQLException {
 
@@ -352,6 +323,9 @@ public class BooksDb implements BooksDbInterface {
 
     }
 
+    /**
+     * Search books by isbn
+     */
     @Override
     public List<Book> searchBooksByISBN(String isbn) throws IOException, SQLException
     {
@@ -372,18 +346,9 @@ public class BooksDb implements BooksDbInterface {
         return result;
     }
 
-
-
-    @Override
-    public List<Book> searchBooksByRating(String rating) throws IOException, SQLException {
-        return null;
-    }
-
-    @Override
-    public List<Book> searchBooksByGenre(String genre) throws IOException, SQLException {
-        return null;
-    }
-
+    /**
+     * Delete selected book
+     */
     @Override
     public void deleteClickedBook(Book bookSelected) throws SQLException {
         if (bookSelected==null)
@@ -394,13 +359,10 @@ public class BooksDb implements BooksDbInterface {
         deleteBook.execute();
     }
 
-    /*
-    private static final Book[] DATA = {
-            new Book(1, "123456789", "Databases Illuminated", new Date(1990, 1, 1)),
-            new Book(2, "456789012", "The buried giant", new Date(2000, 1, 1)),
-            new Book(2, "567890123", "Never let me go", new Date(2000, 1, 1)),
-            new Book(2, "678901234", "The remains of the day", new Date(2000, 1, 1)),
-            new Book(2, "234567890", "Alias Grace", new Date(2000, 1, 1)),
-            new Book(3, "345678901", "The handmaids tale", new Date(2010, 1, 1))
-    }; */
+    /**
+     * Returns if is connected to db
+     */
+    public boolean connected() {
+        return connected;
+    }
 }

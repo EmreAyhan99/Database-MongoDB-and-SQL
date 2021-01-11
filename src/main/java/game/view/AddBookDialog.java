@@ -44,11 +44,6 @@ public class AddBookDialog extends Dialog<Book> {
 
     private ListView <Author> authorListView = new ListView<>();
 
-
-
-
-
-
     public AddBookDialog(Controller controller) {
        buildAddBookDialog(controller);
     }
@@ -85,7 +80,6 @@ public class AddBookDialog extends Dialog<Book> {
         grid.add(newAuthorButton,2,8);
         /////////
 
-        //authorListView.getSelectionModel().selectedItemProperty().addListener();
         newAuthorButton.setOnAction(e -> {
             var clickedAuthor = authorListView.getSelectionModel().getSelectedItem();
             if (clickedAuthor != null && !clickedAuthors.contains(clickedAuthor))
@@ -93,15 +87,6 @@ public class AddBookDialog extends Dialog<Book> {
                 clickedAuthors.add(clickedAuthor);
                 System.out.println("clickade författare"+ clickedAuthors.toString());
             }
-            //clickedAuthors.add(clickedAuthor);
-            //controller.showAllAuthors();
-            //dialog.loadAuthors();
-            //Optional<Book> result = addBookDialog.showAndWait();
-            //System.out.println("ewewewe"+result.toString());
-            //result.ifPresent(book -> controller.addBook(result.get(),result.get().getAuthors()));
-            //controller.addBook();
-
-
         });
 
 
@@ -148,12 +133,12 @@ public class AddBookDialog extends Dialog<Book> {
                     Date date1 = Date.valueOf(date);
                     //System.out.println((genreChoice.getSelectionModel().getSelectedIndex()));
 
-                     Book book= new Book(isbnField.getText(),titleField.getText(), getGenre(genreChoice.getSelectionModel().getSelectedIndex()) ,rating.getSelectionModel().getSelectedIndex()+1, date1, clickedAuthors);
+                     Book book = new Book(isbnField.getText(),titleField.getText(), getGenre(genreChoice.getSelectionModel().getSelectedIndex()) ,rating.getSelectionModel().getSelectedIndex()+1, date1, clickedAuthors);
 
 
                     clearFormData();
                     System.out.println("innan"+clickedAuthors.toString());
-                    //clickedAuthors.clear(); //////////
+                    clickedAuthors.clear(); //////////
                     System.out.println("efter"+clickedAuthors.toString());
                     return book;
                 }

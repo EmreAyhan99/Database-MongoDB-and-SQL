@@ -7,6 +7,7 @@ import game.model.Book;
 import game.model.BooksDbInterface;
 import game.model.SearchMode;
 import javafx.application.Platform;
+import javafx.scene.control.Alert;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -69,17 +70,18 @@ public class Controller {
 
     public void connectToServer()
     {
-
-        try {
-            booksDb.connect("jdbc:mysql://localhost/mydb?"+ "serverTimezone=UTC");
-
-        } catch (SQLException sqlException) {
-            sqlException.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-
+        new Thread(() -> {
+            try {
+                booksDb.connect("jdbc:mysql://localhost/mydb?"+ "serverTimezone=UTC");
+                showAllbooks();
+            } catch (SQLException | IOException throwables) {
+                Platform.runLater(() -> {
+                    var alert = new Alert(Alert.AlertType.ERROR, "Error connecting to db: "+throwables.getMessage());
+                    alert.showAndWait();
+                    throwables.printStackTrace();
+                });
+            }
+        }).start();
     }
 
     public void disconnectFromServer() throws IOException, SQLException {
@@ -89,119 +91,74 @@ public class Controller {
         } finally {}
     }
 
-    public void addBook(Book book, ArrayList<Author> authors)
+    public void addBook(Book book)
     {
-
-        //Book book = null;
-        try {
-            booksDb.addBookAndAuthor(book, authors);  //bara temp måste göra diolog för att få datan
-        } catch (SQLException | IOException throwables) {
-            throwables.printStackTrace();
-        }
+        new Thread(() -> {
+            try {
+                booksDb.addBookAndAuthor(book);  //bara temp måste göra diolog för att få datan
+            } catch (SQLException | IOException throwables) {
+                Platform.runLater(() -> {
+                    var alert = new Alert(Alert.AlertType.ERROR, "Error while adding book: "+throwables.getMessage());
+                    alert.showAndWait();
+                    throwables.printStackTrace();
+                });
+            }
+        }).start();
     }
 
     public void addAuthor(Author author) throws IOException,SQLException
     {
-        try {
-            ArrayList<Author> a = new ArrayList<>();
-            a.add(author);
-            booksDb.addAuthors(author);
-        }catch (SQLException throwables)
-        {
-            throwables.printStackTrace();
-        }
-
+        new Thread(() -> {
+            try {
+                ArrayList<Author> a = new ArrayList<>();
+                a.add(author);
+                booksDb.addAuthors(author);
+            }catch (SQLException | IOException throwables)
+            {
+                Platform.runLater(() -> {
+                    var alert = new Alert(Alert.AlertType.ERROR, "Error while adding author: "+throwables.getMessage());
+                    alert.showAndWait();
+                    throwables.printStackTrace();
+                });
+            }
+        }).start();
     }
 
     public void showAllbooks()
     {
-        new Thread() {
-            public void run() {
-        try {
-             // kallar på data modellen
-            ArrayList <Book> result = new ArrayList<>();
-            result.addAll(booksDb.getAllBooks());
-            Platform.runLater(new Runnable() {
-                public void run() {
+        new Thread(() -> {
+            try {
+                // kallar på data modellen
+                ArrayList <Book> result = new ArrayList<>();
+                result.addAll(booksDb.getAllBooks());
+                Platform.runLater(() -> {
                     booksView.displayBooks(result);
                     //GÖRA något i programmet upttadera vyn göra någit i vyn
-                }
-            });
-        } catch (IOException e) {
-            Platform.runLater(new Runnable() {
-                public void run() {
-                    booksView.showAlertAndWait(e.getMessage(), ERROR);
-                }
-            });
-
-        } catch (SQLException e) {
-            Platform.runLater(new Runnable() {
-                public void run() {
-                    booksView.showAlertAndWait(e.getMessage(), ERROR);
-                }
-            });
-
-        }
-    }
-    }.start();
-
-
-
-
-
-        /*
-        Thread thread = new Thread(() ->{
-
-                Platform.runLater(new Runnable() {
-                    @Override
-                    public void run()
-                    {
-                        try {
-                            System.out.println("RIIIIIIIII"+booksDb.getAllBooks());
-                            booksView.displayBooks(booksDb.getAllBooks());
-                        } catch (SQLException throwables) {
-                            throwables.printStackTrace();
-                        }
-
-                    }
                 });
+            } catch (IOException e) {
+                Platform.runLater(() -> booksView.showAlertAndWait(e.getMessage(), ERROR));
 
-            //this.gameTimeScore = boardModel.getTime();
-
-        });thread.start();
-        */
-        /*
-        try {
-            booksView.displayBooks(booksDb.getAllBooks());
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
-        } */
+            } catch (SQLException e) {
+                Platform.runLater(() -> booksView.showAlertAndWait(e.getMessage(), ERROR));
+            }
+        }).start();
     }
 
     public void showAllAuthors()
     {
-        new Thread() {
-            public void run() {
-                try {
-                    // kallar på data modellen
-                    ArrayList <Author> result = new ArrayList<>();
-                    result.addAll(booksDb.getAllAuthors());
-                    Platform.runLater(new Runnable() {
-                        public void run() {
-                            booksView.displayAuthors(result);
-                            //GÖRA något i programmet upttadera vyn göra någit i vyn
-                        }
-                    });
-                } catch (SQLException e) {
-                    Platform.runLater(new Runnable() {
-                        public void run() {
-                            booksView.showAlertAndWait(e.getMessage(), ERROR);
-                        }
-                    });
-
-                }
+        new Thread(() -> {
+            try {
+                // kallar på data modellen
+                ArrayList <Author> result = new ArrayList<>();
+                result.addAll(booksDb.getAllAuthors());
+                Platform.runLater(() -> {
+                    booksView.displayAuthors(result);
+                    //GÖRA något i programmet upttadera vyn göra någit i vyn
+                });
+            } catch (SQLException e) {
+                Platform.runLater(() -> booksView.showAlertAndWait(e.getMessage(), ERROR));
             }
-        }.start();
+        }).start();
 
     }
 
