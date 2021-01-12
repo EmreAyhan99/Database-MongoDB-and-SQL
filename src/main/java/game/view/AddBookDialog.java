@@ -16,9 +16,7 @@ import javafx.scene.layout.GridPane;
 import java.io.IOException;
 import java.sql.Date;
 import java.sql.SQLException;
-import java.text.BreakIterator;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -202,17 +200,17 @@ public class AddBookDialog extends Dialog<Book> {
     {
         if(row ==0)
         {
-            return Genre.DRAMA;
+            return Genre.Drama;
         }
         if(row ==1)
         {
-            return Genre.HOROR;
+            return Genre.Horor;
         }
         if (row ==2)
         {
-            return Genre.FANTASY;
+            return Genre.Fantasy;
         }
-        return Genre.NOGENRE;
+        return Genre.Nogenre;
     }
 
     public ArrayList<Author> getAuthours() {

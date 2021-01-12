@@ -1,8 +1,10 @@
 package game.model;
 
+import org.bson.types.ObjectId;
+
 public class Author
 {
-    private int authorID;
+    private ObjectId authorID;
     private String name;
 
 
@@ -11,7 +13,7 @@ public class Author
      * @param authorID
      * @param name
      */
-    public Author(int authorID, String name) {
+    public Author(ObjectId authorID, String name) {
         this.authorID = authorID;
         this.name = name;
     }
@@ -24,7 +26,7 @@ public class Author
      * getting author
      * @return
      */
-    public int getAuthorID() {
+    public ObjectId getAuthorID() {
         return authorID;
     }
 
@@ -47,8 +49,8 @@ public class Author
     @Override
     public String toString() {
         return "" +
-                "authorID=" + authorID +
-                ", name='" + name + '\''
+                "name: " + name + '\''+
+                ", authorID: " + authorID
                 ;
     }
 }

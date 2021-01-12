@@ -145,20 +145,20 @@ public class Book{
      */
     public String genreToString(Genre genre)
     {
-        if (Genre.DRAMA == genre)
+        if (Genre.Drama == genre)
         {
-            return Genre.DRAMA.name().toLowerCase();
+            return Genre.Drama.name().toLowerCase();
         }
-        if (Genre.HOROR == genre)
+        if (Genre.Horor == genre)
         {
-            return Genre.HOROR.name().toLowerCase();
+            return Genre.Horor.name().toLowerCase();
         }
-        if (Genre.FANTASY == genre)
+        if (Genre.Fantasy == genre)
         {
-            return Genre.FANTASY.name().toLowerCase();
+            return Genre.Fantasy.name().toLowerCase();
         }
 
-        return Genre.NOGENRE.name().toLowerCase();
+        return Genre.Nogenre.name().toLowerCase();
 
     }
 

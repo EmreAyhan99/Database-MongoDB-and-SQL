@@ -11,6 +11,7 @@ import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * A mock implementation of the BooksDBInterface interface to demonstrate how to
@@ -45,7 +46,7 @@ public class BooksDb implements BooksDbInterface {
         MongoDatabase mongoDatabase = client.getDatabase("mydb");
         books = mongoDatabase.getCollection("books");
         authors = mongoDatabase.getCollection("authors");
-
+        connected = true;
         return true;
     }
 
@@ -62,7 +63,23 @@ public class BooksDb implements BooksDbInterface {
      * Adds books and it's authors
      */
     @Override
-    public void addBookAndAuthor(Book book) throws SQLException {
+    public void addBookAndAuthor(Book book) throws SQLException
+    {
+        ArrayList<Document> list = new ArrayList<>();
+        for (Author author : book.getAuthors())
+        {
+            list.add(new Document(Map.of("_id", author.getAuthorID() , "name", author.getName())));
+        }
+        books.insertOne(new Document(
+                Map.of(
+                        "isbn", book.getIsbn(),
+                        "title",book.getTitle(),
+                        "genre",book.getGenre().name(),
+                        "rating",book.getRating(),
+                        "puplished",book.getPuplishedDate().toString(),
+                        "authors", list
+                )
+        ));
 
     }
 
@@ -80,9 +97,12 @@ public class BooksDb implements BooksDbInterface {
      */
     @Override
     public List<Author> getAllAuthors() throws SQLException {
-        ArrayList<Author> authors = new ArrayList<>();
+        ArrayList<Author> list = new ArrayList<>();
+        for (Document document : authors.find()) {
+            list.add(new Author(document.get("_id",new ObjectId()), document.get("name", "")));
 
-        return authors;
+        }
+        return list;
     }
 
     /**
@@ -91,6 +111,15 @@ public class BooksDb implements BooksDbInterface {
     @Override
     public void addAuthors(Author author) throws SQLException
     {
+
+
+        authors.insertOne(new Document(
+                Map.of(
+                        "name", author.getName()
+                )
+        ));
+
+
     }
 
 
@@ -107,7 +136,7 @@ public class BooksDb implements BooksDbInterface {
                     document.get("isbn", ""),
                     document.get("title",""),
                     Genre.valueOf(document.get("genre","")),
-                    document.get("grade",0),
+                    document.get("rating",0),
                     LocalDate.parse(document.get("puplished",""))
             ));
         }
@@ -120,17 +149,17 @@ public class BooksDb implements BooksDbInterface {
      * returns a enum
      */
     public Genre getInum(String enumname) {
-        if (enumname.equals(String.valueOf(Genre.DRAMA))) {
-            return Genre.DRAMA;
+        if (enumname.equals(String.valueOf(Genre.Drama))) {
+            return Genre.Drama;
         }
-        if (enumname.equals(String.valueOf(Genre.HOROR))) {
-            return Genre.HOROR;
+        if (enumname.equals(String.valueOf(Genre.Horor))) {
+            return Genre.Horor;
         }
-        if (enumname.equals(String.valueOf(Genre.FANTASY))) {
-            return Genre.FANTASY;
+        if (enumname.equals(String.valueOf(Genre.Fantasy))) {
+            return Genre.Fantasy;
         }
 
-        return Genre.NOGENRE;
+        return Genre.Nogenre;
 
     }
 
