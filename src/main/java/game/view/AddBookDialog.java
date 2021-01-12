@@ -133,7 +133,7 @@ public class AddBookDialog extends Dialog<Book> {
                     Date date1 = Date.valueOf(date);
                     //System.out.println((genreChoice.getSelectionModel().getSelectedIndex()));
 
-                     Book book = new Book(isbnField.getText(),titleField.getText(), getGenre(genreChoice.getSelectionModel().getSelectedIndex()) ,rating.getSelectionModel().getSelectedIndex()+1, date1, clickedAuthors);
+                     Book book = new Book(isbnField.getText(),titleField.getText(), getGenre(genreChoice.getSelectionModel().getSelectedIndex()) ,rating.getSelectionModel().getSelectedIndex()+1, date1.toLocalDate(), clickedAuthors);
 
 
                     clearFormData();

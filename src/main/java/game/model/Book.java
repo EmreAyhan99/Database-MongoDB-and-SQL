@@ -1,6 +1,8 @@
 package game.model;
 
-import java.sql.Date;
+import org.bson.types.ObjectId;
+
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.regex.Pattern;
 
@@ -11,12 +13,12 @@ import java.util.regex.Pattern;
  */
 public class Book{
 
-    private int bookId;
+    private ObjectId bookId;
     private String isbn; // should check format
     private String title;
     private Genre genre;
     private int rating;
-    private Date puplishedDate;
+    private LocalDate puplishedDate;
     private ArrayList<Author> authors;
 
     private static final Pattern ISBN_PATTERN =
@@ -39,7 +41,7 @@ public class Book{
      * @param rating
      * @param puplishedDate
      */
-    public Book(int bookId, String isbn, String title, Genre genre, int rating, Date puplishedDate)
+    public Book(ObjectId bookId, String isbn, String title, Genre genre, int rating, LocalDate puplishedDate)
     {
         this.bookId = bookId;
         this.isbn = isbn;
@@ -47,7 +49,6 @@ public class Book{
         this.genre = genre;
         this.rating = rating;
         this.puplishedDate = puplishedDate;
-
     }
 
     /**
@@ -59,7 +60,7 @@ public class Book{
      * @param puplishedDate
      * @param authors
      */
-    public Book(String isbn, String title, Genre genre, int rating, Date puplishedDate, ArrayList<Author> authors)
+    public Book(String isbn, String title, Genre genre, int rating, LocalDate puplishedDate, ArrayList<Author> authors)
     {
         this.bookId = bookId;
         this.isbn = isbn;
@@ -72,8 +73,9 @@ public class Book{
 
     /**
      * Gets id of book
+     * @return
      */
-    public int getBookId() {
+    public ObjectId getBookId() {
         return bookId;
     }
 
@@ -124,15 +126,17 @@ public class Book{
 
     /**
      * sets puplished date
+     * @param puplishedDate
      */
-    public void setPuplishedDate(Date puplishedDate) {
+    public void setPuplishedDate(LocalDate puplishedDate) {
         this.puplishedDate = puplishedDate;
     }
 
     /**
      * gets puplished date
+     * @return
      */
-    public Date getPuplishedDate() {
+    public LocalDate getPuplishedDate() {
         return puplishedDate;
     }
 

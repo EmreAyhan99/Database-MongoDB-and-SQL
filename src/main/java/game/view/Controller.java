@@ -81,7 +81,7 @@ public class Controller {
     {
         new Thread(() -> {
             try {
-                booksDb.connect("jdbc:mysql://localhost/mydb?"+ "serverTimezone=UTC");
+                booksDb.connect("mongodb://localhost:27017");
                 showAllbooks();
             } catch (SQLException | IOException throwables) {
                 Platform.runLater(() -> {
