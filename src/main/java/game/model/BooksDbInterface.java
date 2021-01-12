@@ -26,7 +26,7 @@ public interface BooksDbInterface {
     /**
      * Disconnects from db
      */
-    public void disconnect() throws IOException, SQLException;
+    public void disconnect() throws SQLException;
 
     /**
      * Adds books and authors to db

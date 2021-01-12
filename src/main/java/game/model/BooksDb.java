@@ -51,8 +51,8 @@ public class BooksDb implements BooksDbInterface {
     @Override
     public boolean connect(String database) throws SQLException {
 
-        conn = null;
-        try {
+            conn = null;
+
             conn = DriverManager.getConnection(database, "client", "emre123123!");
             var rs = conn.createStatement().executeQuery("SELECT * FROM t_book");
 
@@ -81,10 +81,6 @@ public class BooksDb implements BooksDbInterface {
             }
 
 
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
-        }
-
         connected = true;
         return true;
     }
@@ -93,15 +89,13 @@ public class BooksDb implements BooksDbInterface {
      * Disconnects from db
      */
     @Override
-    public void disconnect() throws IOException, SQLException {
-        try {
-            if (conn != null) {
-                conn.close();
-                conn = null;
-            }
-        } finally {
+    public void disconnect() throws SQLException {
 
+        if (conn != null) {
+            conn.close();
+            conn = null;
         }
+
 
     }
 
@@ -111,85 +105,43 @@ public class BooksDb implements BooksDbInterface {
      */
     @Override
     public void addBookAndAuthor(Book book) throws SQLException {
-        //storeb
-        /*
-        CallableStatement callableStatement = conn.prepareCall("{call authorRelationWithBook(?,?,?,?");
 
-        callableStatement.registerOutParameter(1,Types.INTEGER);
-        callableStatement.setString(2,"isbnIn");
-        callableStatement.registerOutParameter(3,Types.VARCHAR);
-        callableStatement.registerOutParameter(4,Types.DATE);
-        callableStatement.executeUpdate();
-
-        var id = callableStatement.getInt(1);
-        var isbn = callableStatement.getString(2);
-        var name = callableStatement.getString(3);
-        var date = callableStatement.getDate(4);
-
-        System.out.println("id"+ id);
-        System.out.println("isbn"+ isbn);
-        System.out.println("name" + name);
-        System.out.println("date"+date);
-
-        */
 
         insertBook = conn.prepareStatement("INSERT INTO t_book (isbn,title,genre,grade,puplished)" + " values (?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
         insertAuthor = conn.prepareStatement("insert into t_author (namn)" + " values (?)", Statement.RETURN_GENERATED_KEYS);
         //bookAuthorConnect = conn.prepareStatement("INSERT into t_BookAuthor (authorID,t_book_bookID) VALUES (?,?)");   //////
 
-        conn.setAutoCommit(false);
-        insertBook.setString(1, book.getIsbn());
-        insertBook.setString(2, book.getTitle());
-        insertBook.setString(3, String.valueOf(book.getGenre()));
-        insertBook.setInt(4, book.getRating());
-        insertBook.setDate(5, book.getPuplishedDate());
-
         try {
+            conn.setAutoCommit(false);
+            insertBook.setString(1, book.getIsbn());
+            insertBook.setString(2, book.getTitle());
+            insertBook.setString(3, String.valueOf(book.getGenre()));
+            insertBook.setInt(4, book.getRating());
+            insertBook.setDate(5, book.getPuplishedDate());
             insertBook.executeUpdate();
+
+            var bookResultSet = insertBook.getGeneratedKeys();
+
+            if (bookResultSet.next())
+            {
+                int bookId = bookResultSet.getInt(1);
+
+                for (var author : book.getAuthors())
+                {
+                    int authorId = author.getAuthorID();
+                    connectBookAuthor(bookId, authorId);
+                }
+            }
+            conn.commit();
         }
         catch (SQLException sqlException)
         {
             conn.rollback();
+            conn.setAutoCommit(true);
             throw sqlException;
         }
+        conn.setAutoCommit(true);
 
-        var bookResultSet = insertBook.getGeneratedKeys();
-
-        if (bookResultSet.next()) {
-
-            int bookId = bookResultSet.getInt(1);
-
-            for (var author : book.getAuthors())
-            {
-                int authorId = author.getAuthorID();
-                connectBookAuthor(bookId, authorId);
-                //insertAuthor.setString(1, author.getName());
-                /*
-                try {
-                    insertAuthor.execute();
-                }catch (SQLException sqlException)
-                {
-                    conn.rollback();
-                    throw sqlException;
-                }
-
-
-                var authorResultSet = insertAuthor.getGeneratedKeys();
-
-                if (authorResultSet.next())
-                {
-                    int authorId = authorResultSet.getInt(1);
-                    connectBookAuthor(bookId, authorId);
-
-                } else {
-                    conn.rollback();
-                    break;
-                } */
-
-            }
-        }
-
-        conn.commit();
     }
 
 
@@ -199,13 +151,18 @@ public class BooksDb implements BooksDbInterface {
     public void connectBookAuthor(int bookId, int AuthorId) throws SQLException
     {
 
-        String query = "INSERT into t_BookAuthor (authorID,t_book_bookID) VALUES (?,?)";
-        bookAuthorConnect = conn.prepareStatement(query);
+        try{
+            String query = "INSERT into t_BookAuthor (authorID,t_book_bookID) VALUES (?,?)";
+            bookAuthorConnect = conn.prepareStatement(query);
+            bookAuthorConnect.setInt(1, AuthorId);
+            bookAuthorConnect.setInt(2, bookId);
+            bookAuthorConnect.executeUpdate();
 
-        bookAuthorConnect.setInt(1, AuthorId);
-        bookAuthorConnect.setInt(2, bookId);
+        }catch (SQLException sqlException)
+        {
+            conn.rollback();
+        }
 
-        bookAuthorConnect.executeUpdate();
 
     }
 
@@ -231,11 +188,19 @@ public class BooksDb implements BooksDbInterface {
      * Adds author to database
      */
     @Override
-    public void addAuthors(Author author) throws SQLException {
-        String query = "insert into t_author (namn)" + " values (?)";
-        PreparedStatement preparedStatement = conn.prepareStatement(query);
-        preparedStatement.setString(1, author.getName());
-        preparedStatement.executeUpdate();
+    public void addAuthors(Author author) throws SQLException
+    {
+
+        try {
+            String query = "insert into t_author (namn)" + " values (?)";
+            PreparedStatement preparedStatement = conn.prepareStatement(query);
+            preparedStatement.setString(1, author.getName());
+            preparedStatement.executeUpdate();
+        }catch (SQLException sqlException)
+        {
+            conn.rollback();
+            return;
+        }
     }
 
 
@@ -243,7 +208,8 @@ public class BooksDb implements BooksDbInterface {
      * Gets all books from db
      */
     @Override
-    public List<Book> getAllBooks() throws SQLException {
+    public List<Book> getAllBooks() throws SQLException
+    {
 
         String query = "Select * from t_book";
         System.out.println(query);

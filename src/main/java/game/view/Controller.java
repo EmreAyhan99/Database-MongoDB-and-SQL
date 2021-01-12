@@ -93,11 +93,14 @@ public class Controller {
         }).start();
     }
 
-    public void disconnectFromServer() throws IOException, SQLException {
+    public void disconnectFromServer() throws SQLException {
 
         try {
             booksDb.disconnect();
-        } finally {}
+        } catch (SQLException sqlException) {
+            booksView.showAlertAndWait("could not disconnect from server", ERROR);
+
+        }
     }
 
     public void addBook(Book book)
@@ -107,9 +110,8 @@ public class Controller {
                 booksDb.addBookAndAuthor(book);  //bara temp måste göra diolog för att få datan
             } catch (SQLException | IOException throwables) {
                 Platform.runLater(() -> {
-                    var alert = new Alert(Alert.AlertType.ERROR, "Error while adding book: "+throwables.getMessage());
-                    alert.showAndWait();
-                    throwables.printStackTrace();
+                    booksView.showAlertAndWait("Error while adding bok: " + throwables.getMessage(), ERROR);
+
                 });
             }
         }).start();
@@ -126,9 +128,7 @@ public class Controller {
             }catch (SQLException | IOException throwables)
             {
                 Platform.runLater(() -> {
-                    var alert = new Alert(Alert.AlertType.ERROR, "Error while adding author: "+throwables.getMessage());
-                    alert.showAndWait();
-                    throwables.printStackTrace();
+                    booksView.showAlertAndWait("Error while adding author: "+ throwables.getMessage(), ERROR);
                 });
             }
         }).start();
@@ -177,19 +177,15 @@ public class Controller {
     {
         Thread thread = new Thread(() ->{
 
-            Platform.runLater(new Runnable() {
-                @Override
-                public void run()
-                {
-                    try {
-                      booksDb.deleteClickedBook(clickedOn);  // TODO clicked on är null forstätter imorgon notis
+                try {
+                  booksDb.deleteClickedBook(clickedOn);  // TODO clicked on är null forstätter imorgon notis
 
-                    } catch (SQLException throwables) {
-                        throwables.printStackTrace();
-                    }
-
+                } catch (SQLException throwables) {
+                Platform.runLater(() -> {
+                    booksView.showAlertAndWait(throwables.getMessage(), ERROR);
+                    });
                 }
-            });
+
 
             //this.gameTimeScore = boardModel.getTime();
 
