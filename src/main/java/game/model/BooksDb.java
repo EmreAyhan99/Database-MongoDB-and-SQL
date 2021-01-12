@@ -1,14 +1,8 @@
 package game.model;
 
-import javafx.application.Platform;
-import javafx.scene.control.Alert;
-
-import java.io.IOException;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A mock implementation of the BooksDBInterface interface to demonstrate how to
@@ -20,7 +14,6 @@ import java.sql.*;
  */
 public class BooksDb implements BooksDbInterface {
 
-    private final List<Book> books;
     private Connection conn;
     PreparedStatement insertBook;
     PreparedStatement insertAuthor;
@@ -39,10 +32,8 @@ public class BooksDb implements BooksDbInterface {
     /**
      * Default constructor for BooksDb
      */
-    public BooksDb() throws SQLException
-    {
+    public BooksDb() {
         connected = false;
-        books = Arrays.asList();
     }
 
     /**
@@ -137,7 +128,6 @@ public class BooksDb implements BooksDbInterface {
         catch (SQLException sqlException)
         {
             conn.rollback();
-            conn.setAutoCommit(true);
             throw sqlException;
         }
         conn.setAutoCommit(true);
@@ -171,7 +161,6 @@ public class BooksDb implements BooksDbInterface {
      */
     @Override
     public List<Author> getAllAuthors() throws SQLException {
-        String query = "SELECT * FROM t_author";
         ArrayList<Author> authors = new ArrayList<>();
 
         var rs = getAllAuthors.executeQuery();
@@ -199,7 +188,6 @@ public class BooksDb implements BooksDbInterface {
         }catch (SQLException sqlException)
         {
             conn.rollback();
-            return;
         }
     }
 
@@ -270,7 +258,7 @@ public class BooksDb implements BooksDbInterface {
      * Search books by author
      */
     @Override
-    public List<Book> searchBooksByAuthor(String author) throws IOException, SQLException {
+    public List<Book> searchBooksByAuthor(String author) throws SQLException {
 
         List<Book> result = new ArrayList<>();
         author = author.toLowerCase();
@@ -293,7 +281,7 @@ public class BooksDb implements BooksDbInterface {
      * Search books by isbn
      */
     @Override
-    public List<Book> searchBooksByISBN(String isbn) throws IOException, SQLException
+    public List<Book> searchBooksByISBN(String isbn) throws SQLException
     {
         List<Book> result = new ArrayList<>();
         isbn = isbn.toLowerCase();
