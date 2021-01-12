@@ -4,6 +4,8 @@ import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.Filters;
+import javafx.css.Match;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 
@@ -12,6 +14,8 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * A mock implementation of the BooksDBInterface interface to demonstrate how to
@@ -169,6 +173,18 @@ public class BooksDb implements BooksDbInterface {
     @Override
     public List<Book> searchBooksByTitle(String searchTitle) throws SQLException {
         List<Book> result = new ArrayList<>();
+        for (Document document : books.find(Filters.regex("title",Pattern.compile(searchTitle+"(?i)"))))
+        {
+            result.add(new Book(
+                    document.get("_id", new ObjectId()),
+                    document.get("isbn", ""),
+                    document.get("title",""),
+                    Genre.valueOf(document.get("genre","")),
+                    document.get("rating",0),
+                    LocalDate.parse(document.get("puplished",""))
+            ));
+        }
+
 
         return result;
     }
@@ -180,6 +196,18 @@ public class BooksDb implements BooksDbInterface {
     public List<Book> searchBooksByAuthor(String author) throws SQLException {
 
         List<Book> result = new ArrayList<>();
+        for (Document document : books.find(Filters.elemMatch("authors",Filters.regex("name",Pattern.compile(author+"(?i)")))))
+        {
+
+            result.add(new Book(
+                    document.get("_id", new ObjectId()),
+                    document.get("isbn", ""),
+                    document.get("title",""),
+                    Genre.valueOf(document.get("genre","")),
+                    document.get("rating",0),
+                    LocalDate.parse(document.get("puplished",""))
+            ));
+        }
 
         return result;
 
@@ -192,6 +220,17 @@ public class BooksDb implements BooksDbInterface {
     public List<Book> searchBooksByISBN(String isbn) throws SQLException
     {
         List<Book> result = new ArrayList<>();
+        for (Document document : books.find(Filters.regex("isbn",Pattern.compile(isbn+"(?i)"))))
+        {
+            result.add(new Book(
+                    document.get("_id", new ObjectId()),
+                    document.get("isbn", ""),
+                    document.get("title",""),
+                    Genre.valueOf(document.get("genre","")),
+                    document.get("rating",0),
+                    LocalDate.parse(document.get("puplished",""))
+            ));
+        }
 
         return result;
     }
@@ -200,7 +239,9 @@ public class BooksDb implements BooksDbInterface {
      * Delete selected book
      */
     @Override
-    public void deleteClickedBook(Book bookSelected) throws SQLException {
+    public void deleteClickedBook(Book bookSelected) throws SQLException
+    {
+        books.deleteOne(new Document("_id",bookSelected.getBookId()));
 
     }
 
