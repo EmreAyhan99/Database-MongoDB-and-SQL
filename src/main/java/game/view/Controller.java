@@ -37,35 +37,44 @@ public class Controller {
     }
 
     protected void onSearchSelected(String searchFor, SearchMode mode) {
-        try {
-            if (searchFor != null && searchFor.length() > 1) {
-                List<Book> result = null;
 
-                switch (mode) {
-                    case Title:
-                        result = booksDb.searchBooksByTitle(searchFor);
-                        break;
-                    case ISBN:
-                        result = booksDb.searchBooksByISBN(searchFor);
-                        break;
-                    case Author:
-                        result = booksDb.searchBooksByAuthor(searchFor);
-                        break;
-                    default:
-                }
-                if (result == null || result.isEmpty()) {
-                    booksView.showAlertAndWait(
-                            "No results found.", INFORMATION);
+       new Thread(() -> {
+
+            try {
+                if (searchFor != null && searchFor.length() > 1) {
+                    List<Book> result = null;
+
+                    switch (mode) {
+                        case Title:
+                            result = booksDb.searchBooksByTitle(searchFor);
+                            break;
+                        case ISBN:
+                            result = booksDb.searchBooksByISBN(searchFor);
+                            break;
+                        case Author:
+                            result = booksDb.searchBooksByAuthor(searchFor);
+                            break;
+                        default:
+                    }
+                    if (result == null || result.isEmpty()) {
+                        Platform.runLater(() -> {
+                        booksView.showAlertAndWait("No results found.", INFORMATION);
+                        });
+                    } else {
+                        List<Book> finalResult = result;
+                        Platform.runLater(() -> {
+                        booksView.displayBooks(finalResult);
+                        });
+                    }
                 } else {
-                    booksView.displayBooks(result);
+                    Platform.runLater(() -> {
+                    booksView.showAlertAndWait("Enter a search string!", WARNING);
+                    });
                 }
-            } else {
-                booksView.showAlertAndWait(
-                        "Enter a search string!", WARNING);
+            } catch (SQLException | IOException sqlException) {
+                booksView.showAlertAndWait("Database error.",ERROR);
             }
-        } catch (SQLException | IOException sqlException) {
-            booksView.showAlertAndWait("Database error.",ERROR);
-        }
+       }).start();
     }
 
     public void connectToServer()
@@ -105,6 +114,7 @@ public class Controller {
             }
         }).start();
     }
+
 
     public void addAuthor(Author author) throws IOException,SQLException
     {

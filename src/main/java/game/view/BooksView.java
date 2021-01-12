@@ -163,7 +163,7 @@ public class BooksView extends VBox {
     private void initMenus(Controller controller) {    // la till
 
         Menu fileMenu = new Menu("File");
-
+        MenuItem exitItem = new MenuItem("Exit");
 
         MenuItem connectItem = new MenuItem("Connect to Db");
         connectItem.setOnAction(e -> {
@@ -187,7 +187,7 @@ public class BooksView extends VBox {
         });
 
 
-        fileMenu.getItems().addAll( connectItem, disconnectItem);
+        fileMenu.getItems().addAll(exitItem, connectItem, disconnectItem);
 
 
 
