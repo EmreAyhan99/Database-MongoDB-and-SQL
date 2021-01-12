@@ -130,7 +130,9 @@ public class BooksDb implements BooksDbInterface {
             conn.rollback();
             throw sqlException;
         }
-        conn.setAutoCommit(true);
+        finally {
+            conn.setAutoCommit(true);
+        }
 
     }
 
@@ -140,20 +142,11 @@ public class BooksDb implements BooksDbInterface {
      */
     public void connectBookAuthor(int bookId, int AuthorId) throws SQLException
     {
-
-        try{
             String query = "INSERT into t_BookAuthor (authorID,t_book_bookID) VALUES (?,?)";
             bookAuthorConnect = conn.prepareStatement(query);
             bookAuthorConnect.setInt(1, AuthorId);
             bookAuthorConnect.setInt(2, bookId);
             bookAuthorConnect.executeUpdate();
-
-        }catch (SQLException sqlException)
-        {
-            conn.rollback();
-        }
-
-
     }
 
     /**
@@ -179,16 +172,10 @@ public class BooksDb implements BooksDbInterface {
     @Override
     public void addAuthors(Author author) throws SQLException
     {
-
-        try {
             String query = "insert into t_author (namn)" + " values (?)";
             PreparedStatement preparedStatement = conn.prepareStatement(query);
             preparedStatement.setString(1, author.getName());
             preparedStatement.executeUpdate();
-        }catch (SQLException sqlException)
-        {
-            conn.rollback();
-        }
     }
 
 

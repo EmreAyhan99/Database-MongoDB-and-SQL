@@ -127,6 +127,7 @@ public class Controller {
                 booksDb.addAuthors(author);
             }catch (SQLException | IOException throwables)
             {
+
                 Platform.runLater(() -> {
                     booksView.showAlertAndWait("Error while adding author: "+ throwables.getMessage(), ERROR);
                 });
