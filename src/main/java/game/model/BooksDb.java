@@ -92,21 +92,25 @@ public class BooksDb implements BooksDbInterface {
     @Override
     public void disconnect() throws SQLException {
 
-        if (conn != null) {
-            conn.close();
-            conn = null;
-        }
+        try{
 
-        insertBook.close();
-        insertAuthor.close();
-        bookAuthorConnect.close();
-        searchTitlee.close();
-        searchIsbn.close();
-        searchAuthor.close();
-        searchAuthorBook.close();
-        getAllAuthors.close();
-        deleteBook.close();
-        addAuthor.close();
+            if (conn != null) {
+                conn.close();
+                conn = null;
+            }
+        }finally {
+
+            insertBook.close();
+            insertAuthor.close();
+            bookAuthorConnect.close();
+            searchTitlee.close();
+            searchIsbn.close();
+            searchAuthor.close();
+            searchAuthorBook.close();
+            getAllAuthors.close();
+            deleteBook.close();
+            addAuthor.close();
+        }
 
 
     }
@@ -133,31 +137,30 @@ public class BooksDb implements BooksDbInterface {
             if (bookResultSet.next()) {
                 int bookId = bookResultSet.getInt(1);
 
-                for (var author : book.getAuthors()) {
+                for (var author : book.getAuthors())
+                {
                     int authorId = author.getAuthorID();
-                    connectBookAuthor(bookId, authorId);
+                    bookAuthorConnect.setInt(1, authorId);
+                    bookAuthorConnect.setInt(2, bookId);
+                    bookAuthorConnect.executeUpdate();
+                    //connectBookAuthor(bookId, authorId);
                 }
             }
             conn.commit();
         } catch (SQLException sqlException) {
-            conn.rollback();
-            throw sqlException;
+            if(conn != null)
+            {
+                conn.rollback();
+                throw sqlException;
+            }
         } finally {
+            assert conn != null;
             conn.setAutoCommit(true);
         }
 
     }
 
 
-    /**
-     * Connects the book with an author
-     */
-    public void connectBookAuthor(int bookId, int AuthorId) throws SQLException {
-
-        bookAuthorConnect.setInt(1, AuthorId);
-        bookAuthorConnect.setInt(2, bookId);
-        bookAuthorConnect.executeUpdate();
-    }
 
     /**
      * Gets all authors from db
@@ -192,7 +195,7 @@ public class BooksDb implements BooksDbInterface {
     @Override
     public List<Book> getAllBooks() throws SQLException {
 
-        var rs = getAllAuthors.executeQuery();
+        var rs = getAllBooks.executeQuery();
 
         List<Book> listOfBooks = new ArrayList<>();
 
@@ -228,18 +231,21 @@ public class BooksDb implements BooksDbInterface {
      */
     @Override
     public List<Book> searchBooksByTitle(String searchTitle) throws SQLException {
-        List<Book> result = new ArrayList<>();
-        searchTitle = searchTitle.toLowerCase();
 
-        searchTitlee.setString(1, "%" + searchTitle + "%");
-        var rs = searchTitlee.executeQuery();
-        while (rs.next()) {
-            Book book = new Book(rs.getInt(1), rs.getString(2), rs.getString(3), getInum(rs.getString(4)), rs.getInt(5), rs.getDate(6));
 
-            result.add(book);
-        }
+            List<Book> result = new ArrayList<>();
+            searchTitle = searchTitle.toLowerCase();
 
-        return result;
+            searchTitlee.setString(1, "%" + searchTitle + "%");
+            var rs = searchTitlee.executeQuery();
+            while (rs.next()) {
+                Book book = new Book(rs.getInt(1), rs.getString(2), rs.getString(3), getInum(rs.getString(4)), rs.getInt(5), rs.getDate(6));
+
+                result.add(book);
+            }
+
+            return result;
+
     }
 
     /**
@@ -248,19 +254,20 @@ public class BooksDb implements BooksDbInterface {
     @Override
     public List<Book> searchBooksByAuthor(String author) throws SQLException {
 
-        List<Book> result = new ArrayList<>();
-        author = author.toLowerCase();
+            List<Book> result = new ArrayList<>();
+            author = author.toLowerCase();
 
-        searchAuthorBook.setString(1, "%" + author + "%");
-        var rs = searchAuthorBook.executeQuery();
-        //var rs = searchAuthor.executeQuery();
-        while (rs.next()) {
+            searchAuthorBook.setString(1, "%" + author + "%");
+            var rs = searchAuthorBook.executeQuery();
+            //var rs = searchAuthor.executeQuery();
+            while (rs.next()) {
 
-            Book book = new Book(rs.getInt(1), rs.getString(2), rs.getString(3), getInum(rs.getString(4)), rs.getInt(5), rs.getDate(6));
-            result.add(book);
-        }
+                Book book = new Book(rs.getInt(1), rs.getString(2), rs.getString(3), getInum(rs.getString(4)), rs.getInt(5), rs.getDate(6));
+                result.add(book);
+            }
 
-        return result;
+            return result;
+
 
     }
 
@@ -269,19 +276,20 @@ public class BooksDb implements BooksDbInterface {
      */
     @Override
     public List<Book> searchBooksByISBN(String isbn) throws SQLException {
-        List<Book> result = new ArrayList<>();
-        isbn = isbn.toLowerCase();
 
-        searchIsbn.setString(1, "%" + isbn + "%");
-        var rs = searchIsbn.executeQuery();
-        while (rs.next()) {
-            Book book = new Book(rs.getInt(1), rs.getString(2), rs.getString(3), getInum(rs.getString(4)), rs.getInt(5), rs.getDate(6));
+                List<Book> result = new ArrayList<>();
+                isbn = isbn.toLowerCase();
 
-            result.add(book);
+                searchIsbn.setString(1, "%" + isbn + "%");
+                var rs = searchIsbn.executeQuery();
+                while (rs.next()) {
+                    Book book = new Book(rs.getInt(1), rs.getString(2), rs.getString(3), getInum(rs.getString(4)), rs.getInt(5), rs.getDate(6));
 
-        }
+                    result.add(book);
 
-        return result;
+                }
+
+                return result;
     }
 
     /**

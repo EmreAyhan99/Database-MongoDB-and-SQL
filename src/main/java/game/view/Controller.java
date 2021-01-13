@@ -72,7 +72,7 @@ public class Controller {
                     });
                 }
             } catch (SQLException | IOException sqlException) {
-                booksView.showAlertAndWait("Database error.",ERROR);
+                Platform.runLater(() -> booksView.showAlertAndWait("Database error.",ERROR));
             }
        }).start();
     }
@@ -85,9 +85,7 @@ public class Controller {
                 showAllbooks();
             } catch (SQLException | IOException throwables) {
                 Platform.runLater(() -> {
-                    var alert = new Alert(Alert.AlertType.ERROR, "Error connecting to db: "+throwables.getMessage());
-                    alert.showAndWait();
-                    throwables.printStackTrace();
+                    booksView.showAlertAndWait("Error connecting to db: "+ throwables.getMessage(), ERROR);
                 });
             }
         }).start();
@@ -127,7 +125,6 @@ public class Controller {
                 booksDb.addAuthors(author);
             }catch (SQLException | IOException throwables)
             {
-
                 Platform.runLater(() -> {
                     booksView.showAlertAndWait("Error while adding author: "+ throwables.getMessage(), ERROR);
                 });
