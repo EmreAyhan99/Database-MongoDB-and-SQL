@@ -41,7 +41,8 @@ public class Controller {
        new Thread(() -> {
 
             try {
-                if (searchFor != null && searchFor.length() > 1) {
+
+                if (searchFor != null && searchFor.length() > 1 && booksDb.connected()) {
                     List<Book> result = null;
 
                     switch (mode) {
@@ -68,11 +69,14 @@ public class Controller {
                     }
                 } else {
                     Platform.runLater(() -> {
-                    booksView.showAlertAndWait("Enter a search string!", WARNING);
+                    booksView.showAlertAndWait("Enter a search string or look at connection!", WARNING);
                     });
                 }
-            } catch (SQLException | IOException sqlException) {
+            } catch (IOException sqlException) {
+                Platform.runLater(() -> {
                 booksView.showAlertAndWait("Database error.",ERROR);
+                });
+
             }
        }).start();
     }
@@ -83,7 +87,7 @@ public class Controller {
             try {
                 booksDb.connect("mongodb://localhost:27017");
                 showAllbooks();
-            } catch (SQLException | IOException throwables) {
+            } catch (IOException throwables) {
                 Platform.runLater(() -> {
                     var alert = new Alert(Alert.AlertType.ERROR, "Error connecting to db: "+throwables.getMessage());
                     alert.showAndWait();
@@ -93,11 +97,11 @@ public class Controller {
         }).start();
     }
 
-    public void disconnectFromServer() throws SQLException {
+    public void disconnectFromServer() throws IOException {
 
         try {
             booksDb.disconnect();
-        } catch (SQLException sqlException) {
+        } catch (IOException ioException) {
             booksView.showAlertAndWait("could not disconnect from server", ERROR);
 
         }
@@ -108,7 +112,7 @@ public class Controller {
         new Thread(() -> {
             try {
                 booksDb.addBookAndAuthor(book);  //bara temp måste göra diolog för att få datan
-            } catch (SQLException | IOException throwables) {
+            } catch (IOException throwables) {
                 Platform.runLater(() -> {
                     booksView.showAlertAndWait("Error while adding bok: " + throwables.getMessage(), ERROR);
 
@@ -125,7 +129,7 @@ public class Controller {
                 ArrayList<Author> a = new ArrayList<>();
                 a.add(author);
                 booksDb.addAuthors(author);
-            }catch (SQLException | IOException throwables)
+            }catch (IOException throwables)
             {
                 Platform.runLater(() -> {
                     booksView.showAlertAndWait("Error while adding author: "+ throwables.getMessage(), ERROR);
@@ -148,8 +152,6 @@ public class Controller {
             } catch (IOException e) {
                 Platform.runLater(() -> booksView.showAlertAndWait(e.getMessage(), ERROR));
 
-            } catch (SQLException e) {
-                Platform.runLater(() -> booksView.showAlertAndWait(e.getMessage(), ERROR));
             }
         }).start();
     }
@@ -165,7 +167,7 @@ public class Controller {
                     booksView.displayAuthors(result);
                     //GÖRA något i programmet upttadera vyn göra någit i vyn
                 });
-            } catch (SQLException e) {
+            } catch (IOException e) {
                 Platform.runLater(() -> booksView.showAlertAndWait(e.getMessage(), ERROR));
             }
         }).start();
@@ -180,7 +182,7 @@ public class Controller {
                 try {
                   booksDb.deleteClickedBook(clickedOn);  // TODO clicked on är null forstätter imorgon notis
 
-                } catch (SQLException throwables) {
+                } catch (IOException throwables) {
                 Platform.runLater(() -> {
                     booksView.showAlertAndWait(throwables.getMessage(), ERROR);
                     });

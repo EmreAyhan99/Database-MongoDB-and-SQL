@@ -178,7 +178,7 @@ public class BooksView extends VBox {
             try {
                 controller.disconnectFromServer();
 
-            } catch (SQLException throwables) {
+            } catch (IOException throwables) {
                 throwables.getMessage();
             }
             System.out.println("Disconnected from server");

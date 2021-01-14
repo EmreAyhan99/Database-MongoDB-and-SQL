@@ -21,51 +21,53 @@ public interface BooksDbInterface {
      * @param database
      * @return true on successful connection.
      */
-    public boolean connect(String database) throws IOException, SQLException;
+    public boolean connect(String database) throws IOException;
 
     /**
      * Disconnects from db
      */
-    public void disconnect() throws SQLException;
+    public void disconnect() throws IOException;
 
     /**
      * Adds books and authors to db
      */
-    public void addBookAndAuthor(Book book) throws SQLException,IOException;
+    public void addBookAndAuthor(Book book) throws IOException;
 
     /**
      * Adds author to db
      */
-    public void addAuthors(Author author) throws SQLException,IOException;
+    public void addAuthors(Author author) throws IOException;
 
     /**
      * Gets all books from db
      */
-    public List<Book> getAllBooks() throws SQLException,IOException;
+    public List<Book> getAllBooks() throws IOException;
 
     /**
      * Gets all authors from db
      */
-    public List <Author> getAllAuthors() throws SQLException;
+    public List <Author> getAllAuthors() throws IOException;
 
     /**
      * Searches for books in db by title
      */
-    public List<Book> searchBooksByTitle(String title) throws SQLException,IOException;
+    public List<Book> searchBooksByTitle(String title) throws IOException;
 
     /**
      * Searches for books in db by author
      */
-    List<Book> searchBooksByAuthor(String author) throws IOException, SQLException;
+    List<Book> searchBooksByAuthor(String author) throws IOException;
 
     /**
      * Searches for books in db by isbn
      */
-    List<Book> searchBooksByISBN(String isbn) throws IOException, SQLException;
+    List<Book> searchBooksByISBN(String isbn) throws IOException;
 
 
     /**
      * Deletes selected book from db
      */
-    public void deleteClickedBook(Book bookSelected) throws SQLException;
+    public void deleteClickedBook(Book bookSelected) throws IOException;
+
+    public boolean connected();
 }

@@ -9,6 +9,7 @@ import javafx.css.Match;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 
+import java.io.IOException;
 import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -45,7 +46,7 @@ public class BooksDb implements BooksDbInterface {
      * Connects to database
      */
     @Override
-    public boolean connect(String database) throws SQLException {
+    public boolean connect(String database) throws IOException {
         client = MongoClients.create(database);
         MongoDatabase mongoDatabase = client.getDatabase("mydb");
         books = mongoDatabase.getCollection("books");
@@ -58,7 +59,10 @@ public class BooksDb implements BooksDbInterface {
      * Disconnects from db
      */
     @Override
-    public void disconnect() throws SQLException {
+    public void disconnect() throws IOException
+    {
+        client.close();
+        connected = false;
 
     }
 
@@ -67,7 +71,7 @@ public class BooksDb implements BooksDbInterface {
      * Adds books and it's authors
      */
     @Override
-    public void addBookAndAuthor(Book book) throws SQLException
+    public void addBookAndAuthor(Book book) throws IOException
     {
         ArrayList<Document> list = new ArrayList<>();
         for (Author author : book.getAuthors())
@@ -91,16 +95,13 @@ public class BooksDb implements BooksDbInterface {
     /**
      * Connects the book with an author
      */
-    public void connectBookAuthor(int bookId, int AuthorId) throws SQLException
-    {
 
-    }
 
     /**
      * Gets all authors from db
      */
     @Override
-    public List<Author> getAllAuthors() throws SQLException {
+    public List<Author> getAllAuthors() throws IOException {
         ArrayList<Author> list = new ArrayList<>();
         for (Document document : authors.find()) {
             list.add(new Author(document.get("_id",new ObjectId()), document.get("name", "")));
@@ -113,16 +114,14 @@ public class BooksDb implements BooksDbInterface {
      * Adds author to database
      */
     @Override
-    public void addAuthors(Author author) throws SQLException
+    public void addAuthors(Author author) throws IOException
     {
-
 
         authors.insertOne(new Document(
                 Map.of(
                         "name", author.getName()
                 )
         ));
-
 
     }
 
@@ -131,7 +130,7 @@ public class BooksDb implements BooksDbInterface {
      * Gets all books from db
      */
     @Override
-    public List<Book> getAllBooks() throws SQLException
+    public List<Book> getAllBooks() throws IOException
     {
         ArrayList <Book> listOfBooks = new ArrayList<>();
         for (Document document : books.find()) {
@@ -150,28 +149,10 @@ public class BooksDb implements BooksDbInterface {
 
 
     /**
-     * returns a enum
-     */
-    public Genre getInum(String enumname) {
-        if (enumname.equals(String.valueOf(Genre.Drama))) {
-            return Genre.Drama;
-        }
-        if (enumname.equals(String.valueOf(Genre.Horor))) {
-            return Genre.Horor;
-        }
-        if (enumname.equals(String.valueOf(Genre.Fantasy))) {
-            return Genre.Fantasy;
-        }
-
-        return Genre.Nogenre;
-
-    }
-
-    /**
      * Serach books by title
      */
     @Override
-    public List<Book> searchBooksByTitle(String searchTitle) throws SQLException {
+    public List<Book> searchBooksByTitle(String searchTitle) throws IOException {
         List<Book> result = new ArrayList<>();
         for (Document document : books.find(Filters.regex("title",Pattern.compile(searchTitle+"(?i)"))))
         {
@@ -185,7 +166,6 @@ public class BooksDb implements BooksDbInterface {
             ));
         }
 
-
         return result;
     }
 
@@ -193,7 +173,7 @@ public class BooksDb implements BooksDbInterface {
      * Search books by author
      */
     @Override
-    public List<Book> searchBooksByAuthor(String author) throws SQLException {
+    public List<Book> searchBooksByAuthor(String author) throws IOException {
 
         List<Book> result = new ArrayList<>();
         for (Document document : books.find(Filters.elemMatch("authors",Filters.regex("name",Pattern.compile(author+"(?i)")))))
@@ -217,7 +197,7 @@ public class BooksDb implements BooksDbInterface {
      * Search books by isbn
      */
     @Override
-    public List<Book> searchBooksByISBN(String isbn) throws SQLException
+    public List<Book> searchBooksByISBN(String isbn) throws IOException
     {
         List<Book> result = new ArrayList<>();
         for (Document document : books.find(Filters.regex("isbn",Pattern.compile(isbn+"(?i)"))))
@@ -239,15 +219,23 @@ public class BooksDb implements BooksDbInterface {
      * Delete selected book
      */
     @Override
-    public void deleteClickedBook(Book bookSelected) throws SQLException
+    public void deleteClickedBook(Book bookSelected) throws IOException
     {
-        books.deleteOne(new Document("_id",bookSelected.getBookId()));
+        if (connected)
+        {
+            books.deleteOne(new Document("_id",bookSelected.getBookId()));
+        }
+        else
+        {
+            return;
+        }
 
     }
 
     /**
      * Returns if is connected to db
      */
+    @Override
     public boolean connected() {
         return connected;
     }
