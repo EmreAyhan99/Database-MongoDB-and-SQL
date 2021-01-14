@@ -108,7 +108,6 @@ public class BooksDb implements BooksDbInterface {
             searchAuthor.close();
             searchAuthorBook.close();
             getAllAuthors.close();
-            deleteBook.close();
             addAuthor.close();
         }
 
@@ -300,6 +299,7 @@ public class BooksDb implements BooksDbInterface {
         if (bookSelected == null) {
             return;
         }
+        
         deleteBook = conn.prepareStatement("DELETE FROM `t_book` WHERE isbn = '" + bookSelected.getIsbn() + "'");
         deleteBook.execute();
     }
